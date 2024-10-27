@@ -1,197 +1,229 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio</title>
+    <meta charset="utf-8">
+    <title>Portfolio Template</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="HTML Templates" name="keywords">
+    <meta content="HTML Templates" name="description">
+
+    <!-- Favicon (optional) -->
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&amp;display=swap" rel="stylesheet"> 
+
+    <!-- Font Awesome Icons (optional) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS (re-added for styling) -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS Styles -->
     <style>
-        /* Basic Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            line-height: 1.6;
+            font-family: 'Roboto', sans-serif;
         }
 
-        header {
-            background: #333;
-            color: #fff;
-            padding: 10px 0;
-            text-align: center;
+        /* Navbar styling */
+        .navbar {
+            background-color: #f8f9fa;
         }
 
-        header h1 {
-            font-size: 3rem;
-        }
-
-        nav ul {
-            display: flex;
-            justify-content: center;
-            list-style: none;
-        }
-
-        nav ul li {
-            margin: 0 20px;
-        }
-
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-size: 1.2rem;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-        }
-
-        section {
-            margin: 40px 0;
-        }
-
-        section h2 {
+        .navbar-brand h1 {
             font-size: 2.5rem;
-            margin-bottom: 20px;
-            color: #333;
         }
 
-        section p {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
+        /* Header section */
+        .bg-primary {
+            background-color: #007bff !important;
         }
 
-        .project, .skill {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        footer {
-            background: #333;
-            color: #fff;
+        .header {
+            color: white;
             text-align: center;
-            padding: 20px;
-            margin-top: 40px;
         }
 
-        footer p {
-            font-size: 1.1rem;
-        }
-
-        .contact-form {
-            display: flex;
-            flex-direction: column;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .contact-form input, .contact-form textarea {
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .contact-form button {
-            padding: 10px;
-            background-color: #333;
+        .display-3 {
+            font-size: 3.5rem;
             color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
+            text-shadow: 2px 2px #000;
         }
 
-        .contact-form button:hover {
-            background-color: #555;
+        /* About section */
+        #about {
+            background-color: #f0f0f0;
+        }
+
+        h3 {
+            font-weight: 700;
+        }
+
+        /* Skill bars */
+        .progress {
+            height: 1.5rem;
+        }
+
+        .progress-bar {
+            line-height: 1.5rem;
+            color: white;
+            text-align: center;
+        }
+
+        .progress-bar.bg-primary {
+            background-color: #007bff;
+        }
+
+        .progress-bar.bg-warning {
+            background-color: #ffc107;
+        }
+
+        .progress-bar.bg-danger {
+            background-color: #dc3545;
+        }
+
+        /* Section titles */
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-primary {
+            color: #007bff !important;
+        }
+
+        .display-1 {
+            font-size: 5rem;
+            color: #e9ecef;
+            text-shadow: 2px 2px #000;
+        }
+
+        /* Other global styles */
+        .container-fluid {
+            padding: 5rem 0;
         }
     </style>
 </head>
-<body>
-
-    <!-- Header Section -->
-    <header>
-        <h1>My Portfolio</h1>
-        <nav>
-            <ul>
-                <li><a href="#about">About</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <div class="container">
-
-        <!-- About Section -->
-        <section id="about">
-            <h2>About Me</h2>
-            <p>Hello! I’m Ahmed, a passionate computer science student. I love creating solutions that blend creativity and technology to bring great ideas to life. When I'm not coding, you'll find me coding.</p>
-        </section>
-
-        <!-- Projects Section -->
-        <section id="projects">
-            <h2>Projects</h2>
-
-            <div class="project">
-                <h3>Project 1: Awesome Web App</h3>
-                <p>A brief description of your project. You can link to the project or include a screenshot. Explain what technologies you used and the challenges you overcame.</p>
+<body data-spy="scroll" data-target=".navbar" data-offset="51">
+    <!-- Navbar Start -->
+    <nav class="navbar fixed-top shadow-sm navbar-expand-lg navbar-light py-3 py-lg-0 px-lg-5">
+        <a href="#home" class="navbar-brand ml-lg-3">
+            <h1 class="m-0 display-5"><span class="text-primary">Ahmed</span>Chaoui</h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse px-lg-3" id="navbarCollapse">
+            <div class="navbar-nav m-auto py-0">
+                <a href="#home" class="nav-item nav-link active">Home</a>
+                <a href="#about" class="nav-item nav-link">About</a>
+                <a href="#qualification" class="nav-item nav-link">Quality</a>
+                <a href="#skill" class="nav-item nav-link">Skill</a>
+                <a href="#service" class="nav-item nav-link">Courses</a>
+                <a href="#portfolio" class="nav-item nav-link">Academic works</a>
+                <a href="#certification" class="nav-item nav-link">Certification</a>
+                <a href="#contact" class="nav-item nav-link">Contact</a>
             </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
 
-            <div class="project">
-                <h3>Project 2: Cool Mobile App</h3>
-                <p>A brief description of another project. Highlight what makes it unique and interesting, and any problem-solving techniques you applied.</p>
+    <!-- Header Start -->
+    <div class="container-fluid bg-primary d-flex align-items-center mb-5 py-5" id="home" style="min-height: 100vh;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-5 px-5 pl-lg-0 pb-5 pb-lg-0">
+                    <!-- Profile Image -->
+                </div>
+                <div class="col-lg-7 text-center text-lg-left">
+                    <h3 class="text-white font-weight-normal mb-3">I'm</h3>
+                    <h1 class="display-3 text-uppercase text-primary mb-2" style="-webkit-text-stroke: 2px #ffffff;">Ahmed Chaoui</h1>
+                    <h1 class="typed-text-output d-inline font-weight-lighter text-white">Eurecom</h1><span class="typed-cursor">|</span>
+                    <div class="typed-text d-none">Computer science</div>
+                    <div class="d-flex align-items-center justify-content-center justify-content-lg-start pt-5">
+                        <!-- CV download link -->
+                    </div>
+                </div>
             </div>
-
-            <!-- Add more projects as needed -->
-        </section>
-
-        <!-- Skills Section -->
-        <section id="skills">
-            <h2>Skills</h2>
-
-            <div class="skill">
-                <h3>HTML, CSS, JavaScript</h3>
-                <p>Experience building responsive websites using modern web technologies like HTML5, CSS3, and JavaScript.</p>
-            </div>
-
-            <div class="skill">
-                <h3>Python & Django</h3>
-                <p>Developing dynamic applications using Python, with backend development experience in Django.</p>
-            </div>
-
-            <!-- Add more skills if necessary -->
-        </section>
-
-        <!-- Contact Section -->
-        <section id="contact">
-            <h2>Contact Me</h2>
-            <p>If you'd like to get in touch, feel free to reach out through the form below:</p>
-            <form class="contact-form">
-                <input type="text" placeholder="Your Name" required>
-                <input type="email" placeholder="Your Email" required>
-                <textarea placeholder="Your Message" rows="5" required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
-        </section>
-
+        </div>
     </div>
+    <!-- Header End -->
 
-    <!-- Footer Section -->
-    <footer>
-        <p>&copy; 2024 Ahmed Chaoui. All Rights Reserved.</p>
-    </footer>
+    <!-- About Start -->
+    <div class="container-fluid py-5" id="about">
+        <div class="container">
+            <div class="position-relative d-flex align-items-center justify-content-center">
+                <h1 class="display-1 text-uppercase text-white" style="-webkit-text-stroke: 1px #dee2e6;">About</h1>
+                <h1 class="position-absolute text-uppercase text-primary">About Me</h1>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-lg-5 pb-4 pb-lg-0">
+                    <!-- About Image -->
+                </div>
+                <div class="col-lg-7">
+                    <h3 class="mb-4">Data Scientist &amp; AI Engineer</h3>
+                    <p>I am a 22-year-old student in my second year at EURECOM, studying data science. I'm passionate about new technologies and sciences. Determination and hard work best define me.</p>
+                    <div class="row mb-3">
+                        <div class="col-sm-6 py-2">
+                            <h6>Name: <span class="text-secondary">Ahmed Chaoui</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Birthday: <span class="text-secondary">23 May 2001</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Degree: <span class="text-secondary">Dual Masters</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Experience: <span class="text-secondary">1 Year</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Phone: <span class="text-secondary">+33 7 81 35 66 26</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Email: <span class="text-secondary">mayaud@eurecom.fr</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Address: <span class="text-secondary">France, Lyon</span></h6>
+                        </div>
+                        <div class="col-sm-6 py-2">
+                            <h6>Freelance: <span class="text-secondary">Available</span></h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About End -->
 
+    <!-- Skill Section -->
+    <div class="container-fluid py-5" id="skill">
+        <div class="container">
+            <div class="position-relative d-flex align-items-center justify-content-center">
+                <h1 class="display-1 text-uppercase text-white" style="-webkit-text-stroke: 1px #dee2e6;">Skills</h1>
+                <h1 class="position-absolute text-uppercase text-primary">Language skills</h1>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="skill mb-4 text-center">
+                        <div class="justify-content-between">
+                            <h6 class="font-weight-bold">French</h6>
+                            <div class="progress w-100">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 95%" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skill mb-4 text-center">
+                        <h6 class="font-weight-bold">English</h6>
+                        <div class="progress w-100">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="skill mb-4 text-center">
+                        <h6 class="font-weight-bold">Spanish</h6>
+                        <div class="progress w-100">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Skill End -->
 </body>
-</html>
