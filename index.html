@@ -3,35 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exécution de Python avec Brython</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.9.5/brython.min.js"></script>
+    <title>Mon Journal Intime</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: url('suzume.jpeg') no-repeat center center fixed; /* Change to your image path */
+            background-size: cover;
+            color: #333;
+        }
+        #journalContainer {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        button {
+            background-color: #4CAF50; /* Vert */
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #colorButtons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .colorButton {
+            width: 40px;
+            height: 40px;
+            border: 2px solid black;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body onload="brython()">
+<body>
 
-    <h1>COUCOU</h1>
-    <button id="mybutton">Colorer un pixel de ma vie</button>
-    <div id="output"></div>
+    <div id="journalContainer">
+        <h1>Mon Journal Intime</h1>
+        <textarea id="textEntry" placeholder="Apprécions les moments qui ne reviendront jamais..."></textarea>
+        
+        <div id="colorButtons">
+            <div class="colorButton" style="background-color: #ff9397;" onclick="setTextColor('#ff9397')"></div>
+            <div class="colorButton" style="background-color: #fec1be;" onclick="setTextColor('#fec1be')"></div>
+            <div class="colorButton" style="background-color: #fee6c3;" onclick="setTextColor('#fee6c3')"></div>
+            <div class="colorButton" style="background-color: #b8c5ff;" onclick="setTextColor('#b8c5ff')"></div>
+            <div class="colorButton" style="background-color: #d7bdfd;" onclick="setTextColor('#d7bdfd')"></div>
+        </div>
 
-    <script type="text/python">
-        from browser import document, ajax
+        <button id="photoButton" onclick="addPhoto()">📸 Ajouter une Photo</button>
+        <button id="saveButton" onclick="saveEntry()">Enregistrer l'Entrée</button>
+        <div id="output"></div>
+    </div>
 
-        def load_python_file(event):
-            # Charger le fichier Python externe
-            req = ajax.ajax()
-            req.open('GET', 'script.py', True)
+    <script>
+        function setTextColor(color) {
+            document.getElementById("textEntry").style.backgroundColor = color;
+        }
 
-            def oncomplete(req):
-                if req.status == 200:
-                    exec(req.response)  # Exécuter le code chargé
-                    document["output"].text = greet()  # Appeler la fonction greet
-                else:
-                    document["output"].text = "Erreur de chargement du fichier Python."
+        function addPhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = readerEvent => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = readerEvent.target.result;
+                    imgElement.style.maxWidth = '100%'; // Adjust size
+                    imgElement.style.border = '2px solid black';
+                    imgElement.style.borderRadius = '10px';
+                    document.getElementById("output").appendChild(imgElement);
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        }
 
-            req.bind('complete', oncomplete)
-            req.send()
-
-        document["mybutton"].bind("click", load_python_file)
+        function saveEntry() {
+            const text = document.getElementById("textEntry").value;
+            const outputDiv = document.getElementById("output");
+            const dateTime = new Date().toLocaleString();
+            const entry = `<p><strong>${dateTime}</strong>: ${text}</p>`;
+            outputDiv.innerHTML += entry;
+            document.getElementById("textEntry").value = ""; // Clear text area
+        }
     </script>
 
 </body>
 </html>
+
