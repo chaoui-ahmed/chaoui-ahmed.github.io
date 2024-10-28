@@ -68,10 +68,13 @@
 
         <button id="photoButton" onclick="addPhoto()">📸 Ajouter une Photo</button>
         <button id="saveButton" onclick="saveEntry()">Enregistrer l'Entrée</button>
+        <button id="downloadButton" onclick="downloadJournal()">Télécharger le Journal</button>
         <div id="output"></div>
     </div>
 
     <script>
+        const entries = []; // Stocke les entrées de journal
+
         function setTextColor(color) {
             document.getElementById("textEntry").style.backgroundColor = color;
         }
@@ -102,10 +105,35 @@
             const dateTime = new Date().toLocaleString();
             const entry = `<p><strong>${dateTime}</strong>: ${text}</p>`;
             outputDiv.innerHTML += entry;
-            document.getElementById("textEntry").value = ""; // Clear text area
+
+            // Ajouter l'entrée au tableau
+            entries.push({ dateTime, text });
+
+            // Effacer la zone de texte
+            document.getElementById("textEntry").value = ""; 
+        }
+
+        function downloadJournal() {
+            // Convertir les entrées en texte
+            let journalContent = "";
+            entries.forEach(entry => {
+                journalContent += `${entry.dateTime}: ${entry.text}\n\n`;
+            });
+
+            // Créer un Blob à partir du contenu
+            const blob = new Blob([journalContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            // Créer un lien pour télécharger le fichier
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'journal.txt'; // Nom du fichier
+            document.body.appendChild(a);
+            a.click(); // Simuler le clic pour télécharger
+            document.body.removeChild(a); // Retirer le lien du DOM
+            URL.revokeObjectURL(url); // Libérer l'URL
         }
     </script>
 
 </body>
 </html>
-
