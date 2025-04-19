@@ -1,0 +1,16 @@
+import JournalEntry from "@/components/JournalEntry"
+import Navbar from "@/components/Navbar"
+import AnimatedBackground from "@/components/AnimatedBackground"
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-white">
+      <AnimatedBackground />
+      <Navbar />
+      <div className="container mx-auto p-4 md:p-8">
+        <h1 className="text-4xl font-bold text-center mb-6 text-black">✧Camille's Pixels✧</h1>
+        <JournalEntry />
+      </div>
+    </main>
+  )
+}
