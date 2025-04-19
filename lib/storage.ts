@@ -1,10 +1,10 @@
 import type { JournalEntry } from "@/types/JournalEntry"
-import { getSupabaseClient } from "./supabase"
+import { createClient } from "@/utils/supabase/client"
 
 const CACHE_KEY = "journal_entries_cache"
 
 // Fonction pour récupérer le client Supabase
-const getSupabase = () => getSupabaseClient()
+const getSupabase = () => createClient()
 
 // Fonctions de cache local
 const cacheEntries = (entries: JournalEntry[]) => {
@@ -19,40 +19,165 @@ const getCachedEntries = (): JournalEntry[] => {
   return cached ? JSON.parse(cached) : []
 }
 
-// Fonction pour vérifier si la table existe et configurer les politiques d'accès
-export const createTableIfNotExists = async () => {
+// Fonction pour créer la table si elle n'existe pas
+export const createTableIfNotExists = async (): Promise<{ success: boolean; message: string }> => {
   try {
     const supabase = getSupabase()
 
-    // Vérifier si la table existe déjà en essayant de récupérer une entrée
+    // Vérifier si la table existe déjà
     console.log("Checking if journal_entries table exists...")
-    const { data, error: checkError } = await supabase.from("journal_entries").select("id").limit(1)
+    const { error: checkError } = await supabase.from("journal_entries").select("id").limit(1)
 
-    console.log("Check result:", { data, error: checkError ? checkError.message : null })
+    // Si la table n'existe pas, on la crée
+    if (checkError && checkError.message.includes("does not exist")) {
+      console.log("Table journal_entries does not exist, creating it...")
 
-    // Si la table n'existe pas ou s'il y a une erreur d'accès
-    if (checkError) {
-      if (checkError.message.includes("does not exist")) {
-        console.log("Table journal_entries does not exist, using local storage only")
-        return false
+      // Créer la table avec SQL
+      const { error: createError } = await supabase.rpc("exec_sql", {
+        sql_query: `
+          CREATE TABLE IF NOT EXISTS journal_entries (
+            id TEXT PRIMARY KEY,
+            content TEXT NOT NULL,
+            mood TEXT NOT NULL,
+            hashtags TEXT[] NOT NULL,
+            date TIMESTAMPTZ NOT NULL,
+            photos TEXT[] DEFAULT '{}'
+          );
+          
+          -- Créer un index sur la date
+          CREATE INDEX IF NOT EXISTS journal_entries_date_idx ON journal_entries(date);
+          
+          -- Activer RLS
+          ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
+          
+          -- Créer une politique pour permettre toutes les opérations
+          CREATE POLICY "Enable all operations for all users" ON journal_entries
+            USING (true)
+            WITH CHECK (true);
+        `,
+      })
+
+      if (createError) {
+        console.error("Error creating table:", createError)
+
+        // Si l'erreur est liée aux permissions
+        if (createError.message.includes("permission") || createError.message.includes("access")) {
+          return {
+            success: false,
+            message: "Vous n'avez pas les permissions nécessaires pour créer la table. Veuillez la créer manuellement.",
+          }
+        }
+
+        // Si la fonction RPC n'existe pas
+        if (createError.message.includes("function") && createError.message.includes("does not exist")) {
+          return {
+            success: false,
+            message: "La fonction exec_sql n'existe pas. Veuillez créer la table manuellement.",
+          }
+        }
+
+        return {
+          success: false,
+          message: `Erreur lors de la création de la table: ${createError.message}`,
+        }
       }
 
+      console.log("Table journal_entries created successfully")
+      return {
+        success: true,
+        message: "Table journal_entries créée avec succès.",
+      }
+    } else if (checkError) {
       // Si l'erreur est liée aux permissions
       if (checkError.message.includes("permission") || checkError.message.includes("access")) {
         console.log("Permission error accessing journal_entries table:", checkError.message)
-        console.log("Please check your Row Level Security (RLS) policies in Supabase")
-        return false
+        return {
+          success: false,
+          message:
+            "Vous n'avez pas les permissions nécessaires pour accéder à la table. Veuillez configurer les politiques RLS.",
+        }
       }
 
       console.log("Unknown error accessing journal_entries table:", checkError.message)
-      return false
+      return {
+        success: false,
+        message: `Erreur lors de l'accès à la table: ${checkError.message}`,
+      }
     }
 
     console.log("Table journal_entries exists and is accessible")
-    return true
+    return {
+      success: true,
+      message: "Table journal_entries existe et est accessible.",
+    }
   } catch (error) {
-    console.error("Error checking table:", error)
-    return false
+    console.error("Error checking/creating table:", error)
+    return {
+      success: false,
+      message: `Erreur lors de la vérification/création de la table: ${error instanceof Error ? error.message : String(error)}`,
+    }
+  }
+}
+
+// Fonction pour créer la table manuellement avec SQL brut
+export const createTableManually = async (): Promise<{ success: boolean; message: string }> => {
+  try {
+    const supabase = getSupabase()
+
+    // Utiliser l'API REST pour exécuter du SQL brut
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""}`,
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        query: `
+          CREATE TABLE IF NOT EXISTS journal_entries (
+            id TEXT PRIMARY KEY,
+            content TEXT NOT NULL,
+            mood TEXT NOT NULL,
+            hashtags TEXT[] NOT NULL,
+            date TIMESTAMPTZ NOT NULL,
+            photos TEXT[] DEFAULT '{}'
+          );
+          
+          -- Créer un index sur la date
+          CREATE INDEX IF NOT EXISTS journal_entries_date_idx ON journal_entries(date);
+          
+          -- Activer RLS
+          ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
+          
+          -- Créer une politique pour permettre toutes les opérations
+          CREATE POLICY "Enable all operations for all users" ON journal_entries
+            USING (true)
+            WITH CHECK (true);
+        `,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("Error creating table with REST API:", errorText)
+      return {
+        success: false,
+        message: `Erreur lors de la création de la table: ${errorText}`,
+      }
+    }
+
+    console.log("Table journal_entries created successfully with REST API")
+    return {
+      success: true,
+      message: "Table journal_entries créée avec succès.",
+    }
+  } catch (error) {
+    console.error("Error creating table manually:", error)
+    return {
+      success: false,
+      message: `Erreur lors de la création manuelle de la table: ${error instanceof Error ? error.message : String(error)}`,
+    }
   }
 }
 
@@ -61,11 +186,11 @@ export const saveEntry = async (entry: JournalEntry) => {
     const supabase = getSupabase()
 
     // Vérifier si la table existe
-    const tableExists = await createTableIfNotExists()
+    const tableCheck = await createTableIfNotExists()
 
     // Si la table n'existe pas, on utilise uniquement le stockage local
-    if (!tableExists) {
-      throw new Error("Table does not exist or is not accessible")
+    if (!tableCheck.success) {
+      throw new Error(tableCheck.message)
     }
 
     console.log("Saving entry to Supabase:", entry.id)
@@ -120,11 +245,11 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
     const supabase = getSupabase()
 
     // Vérifier si la table existe
-    const tableExists = await createTableIfNotExists()
+    const tableCheck = await createTableIfNotExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      throw new Error("Table does not exist or is not accessible")
+    if (!tableCheck.success) {
+      throw new Error(tableCheck.message)
     }
 
     console.log("Fetching all entries from Supabase...")
@@ -151,18 +276,16 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
   }
 }
 
-// Les autres fonctions restent inchangées...
-
 export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEntry[]> => {
   try {
     const supabase = getSupabase()
 
     // Vérifier si la table existe
-    const tableExists = await createTableIfNotExists()
+    const tableCheck = await createTableIfNotExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      throw new Error("Table does not exist or is not accessible")
+    if (!tableCheck.success) {
+      throw new Error(tableCheck.message)
     }
 
     // Rechercher les entrées par hashtag dans Supabase
@@ -193,11 +316,11 @@ export const searchEntriesByContent = async (term: string): Promise<JournalEntry
     const supabase = getSupabase()
 
     // Vérifier si la table existe
-    const tableExists = await createTableIfNotExists()
+    const tableCheck = await createTableIfNotExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      throw new Error("Table does not exist or is not accessible")
+    if (!tableCheck.success) {
+      throw new Error(tableCheck.message)
     }
 
     // Rechercher les entrées par contenu dans Supabase
@@ -226,11 +349,11 @@ export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
     const supabase = getSupabase()
 
     // Vérifier si la table existe
-    const tableExists = await createTableIfNotExists()
+    const tableCheck = await createTableIfNotExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      throw new Error("Table does not exist or is not accessible")
+    if (!tableCheck.success) {
+      throw new Error(tableCheck.message)
     }
 
     // Formater la date pour la requête
@@ -292,11 +415,11 @@ export const syncLocalEntriesToSupabase = async () => {
     if (localEntries.length === 0) return
 
     // Vérifier si la table existe
-    const tableExists = await createTableIfNotExists()
+    const tableCheck = await createTableIfNotExists()
 
     // Si la table n'existe pas, on ne peut pas synchroniser
-    if (!tableExists) {
-      throw new Error("Table does not exist or is not accessible")
+    if (!tableCheck.success) {
+      throw new Error(tableCheck.message)
     }
 
     console.log(`Syncing ${localEntries.length} local entries to Supabase`)
