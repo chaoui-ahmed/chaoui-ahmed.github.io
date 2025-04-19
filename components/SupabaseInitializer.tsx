@@ -19,10 +19,10 @@ export default function SupabaseInitializer() {
           // Charger les entrées
           await getAllEntries()
         } else {
-          console.warn("Supabase table does not exist, using local storage only")
+          console.warn("Supabase table does not exist or is not accessible, using local storage only")
           toast({
             title: "Configuration requise",
-            description: "Veuillez créer la table 'journal_entries' dans Supabase pour activer la synchronisation.",
+            description: "Veuillez vérifier les politiques d'accès de la table 'journal_entries' dans Supabase.",
             duration: 10000,
           })
         }

@@ -19,21 +19,36 @@ const getCachedEntries = (): JournalEntry[] => {
   return cached ? JSON.parse(cached) : []
 }
 
-// Fonction pour créer la table si elle n'existe pas
+// Fonction pour vérifier si la table existe et configurer les politiques d'accès
 export const createTableIfNotExists = async () => {
   try {
     const supabase = getSupabase()
 
     // Vérifier si la table existe déjà en essayant de récupérer une entrée
-    const { error: checkError } = await supabase.from("journal_entries").select("id").limit(1)
+    console.log("Checking if journal_entries table exists...")
+    const { data, error: checkError } = await supabase.from("journal_entries").select("id").limit(1)
 
-    // Si la table n'existe pas, on utilise le stockage local uniquement
-    if (checkError && checkError.message.includes("does not exist")) {
-      console.log("Table journal_entries does not exist, using local storage only")
+    console.log("Check result:", { data, error: checkError ? checkError.message : null })
+
+    // Si la table n'existe pas ou s'il y a une erreur d'accès
+    if (checkError) {
+      if (checkError.message.includes("does not exist")) {
+        console.log("Table journal_entries does not exist, using local storage only")
+        return false
+      }
+
+      // Si l'erreur est liée aux permissions
+      if (checkError.message.includes("permission") || checkError.message.includes("access")) {
+        console.log("Permission error accessing journal_entries table:", checkError.message)
+        console.log("Please check your Row Level Security (RLS) policies in Supabase")
+        return false
+      }
+
+      console.log("Unknown error accessing journal_entries table:", checkError.message)
       return false
     }
 
-    console.log("Table journal_entries exists")
+    console.log("Table journal_entries exists and is accessible")
     return true
   } catch (error) {
     console.error("Error checking table:", error)
@@ -50,8 +65,10 @@ export const saveEntry = async (entry: JournalEntry) => {
 
     // Si la table n'existe pas, on utilise uniquement le stockage local
     if (!tableExists) {
-      throw new Error("Table does not exist")
+      throw new Error("Table does not exist or is not accessible")
     }
+
+    console.log("Saving entry to Supabase:", entry.id)
 
     // Insérer l'entrée dans Supabase
     const { error } = await supabase.from("journal_entries").upsert({
@@ -63,7 +80,10 @@ export const saveEntry = async (entry: JournalEntry) => {
       photos: entry.photos || [],
     })
 
-    if (error) throw error
+    if (error) {
+      console.error("Error in upsert operation:", error.message)
+      throw error
+    }
 
     console.log("Entry saved successfully to Supabase")
 
@@ -104,13 +124,18 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
 
     // Si la table n'existe pas, on utilise le cache local
     if (!tableExists) {
-      throw new Error("Table does not exist")
+      throw new Error("Table does not exist or is not accessible")
     }
+
+    console.log("Fetching all entries from Supabase...")
 
     // Récupérer toutes les entrées depuis Supabase
     const { data, error } = await supabase.from("journal_entries").select("*").order("date", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.error("Error in select operation:", error.message)
+      throw error
+    }
 
     console.log(`Retrieved ${data.length} entries from Supabase`)
 
@@ -126,6 +151,8 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
   }
 }
 
+// Les autres fonctions restent inchangées...
+
 export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEntry[]> => {
   try {
     const supabase = getSupabase()
@@ -135,7 +162,7 @@ export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEn
 
     // Si la table n'existe pas, on utilise le cache local
     if (!tableExists) {
-      throw new Error("Table does not exist")
+      throw new Error("Table does not exist or is not accessible")
     }
 
     // Rechercher les entrées par hashtag dans Supabase
@@ -170,7 +197,7 @@ export const searchEntriesByContent = async (term: string): Promise<JournalEntry
 
     // Si la table n'existe pas, on utilise le cache local
     if (!tableExists) {
-      throw new Error("Table does not exist")
+      throw new Error("Table does not exist or is not accessible")
     }
 
     // Rechercher les entrées par contenu dans Supabase
@@ -203,7 +230,7 @@ export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
 
     // Si la table n'existe pas, on utilise le cache local
     if (!tableExists) {
-      throw new Error("Table does not exist")
+      throw new Error("Table does not exist or is not accessible")
     }
 
     // Formater la date pour la requête
@@ -269,7 +296,7 @@ export const syncLocalEntriesToSupabase = async () => {
 
     // Si la table n'existe pas, on ne peut pas synchroniser
     if (!tableExists) {
-      throw new Error("Table does not exist")
+      throw new Error("Table does not exist or is not accessible")
     }
 
     console.log(`Syncing ${localEntries.length} local entries to Supabase`)
