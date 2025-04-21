@@ -23,16 +23,24 @@ export const setAccessCode = (code: string): void => {
 
 export const validateAccessCode = async (code: string): Promise<boolean> => {
   try {
+    if (!code || code.trim() === "") {
+      console.error("Empty access code provided")
+      return false
+    }
+
+    // Sauvegarder le code d'accès d'abord pour que les appels suivants l'utilisent
+    setAccessCode(code)
+
     // Vérifier si le code existe dans Blob Storage
     const entries = await getAllEntriesFromBlob(code)
 
-    if (entries.length > 0) {
-      // Si des entrées existent avec ce code, on le sauvegarde
-      setAccessCode(code)
-      return true
-    }
+    // Si aucune entrée n'existe encore avec ce code, c'est un nouveau code
+    // On le considère comme valide quand même
+    console.log(`Found ${entries.length} entries for access code: ${code}`)
 
-    return false
+    // Même si aucune entrée n'existe, on considère le code comme valide
+    // car l'utilisateur pourrait être en train de configurer un nouveau journal
+    return true
   } catch (error) {
     console.error("Error validating access code:", error)
     return false

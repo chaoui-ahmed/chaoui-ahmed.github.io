@@ -36,7 +36,7 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
       if (isValid) {
         toast({
           title: "Connexion réussie",
-          description: "Vos données ont été chargées avec succès.",
+          description: "Votre code d'accès a été validé avec succès.",
           className: "bg-green-100 border-green-400 text-green-800",
         })
 
@@ -44,7 +44,7 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
       } else {
         toast({
           title: "Code d'accès invalide",
-          description: "Le code d'accès que vous avez entré n'est pas valide ou n'a pas d'entrées associées.",
+          description: "Le code d'accès que vous avez entré n'est pas valide.",
           variant: "destructive",
         })
       }
@@ -61,34 +61,41 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-md border border-black bg-white/80 backdrop-blur-sm">
-      <CardHeader>
-        <CardTitle className="text-2xl text-orange-400">Accéder à votre journal</CardTitle>
-        <CardDescription>Entrez votre code d'accès pour accéder à vos entrées de journal.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="accessCode">Code d'accès</Label>
-            <Input
-              id="accessCode"
-              placeholder="Entrez votre code d'accès"
-              value={accessCode}
-              onChange={(e) => setAccessCode(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-            />
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      <Card className="w-full max-w-md mx-auto shadow-lg border-2 border-black bg-white dark:bg-gray-800">
+        <CardHeader className="bg-orange-100 dark:bg-orange-900/30">
+          <CardTitle className="text-2xl text-orange-600 dark:text-orange-300">Accéder à votre journal</CardTitle>
+          <CardDescription className="text-orange-700 dark:text-orange-400">
+            Entrez votre code d'accès pour accéder à vos entrées de journal.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="accessCode" className="text-gray-800 dark:text-gray-200">
+                Code d'accès
+              </Label>
+              <Input
+                id="accessCode"
+                placeholder="Entrez votre code d'accès"
+                value={accessCode}
+                onChange={(e) => setAccessCode(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                className="border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
+              />
+            </div>
           </div>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button
-          onClick={handleLogin}
-          disabled={isLoading}
-          className="w-full bg-orange-300 hover:bg-orange-400 text-black"
-        >
-          {isLoading ? "Chargement des données..." : "Se connecter"}
-        </Button>
-      </CardFooter>
-    </Card>
+        </CardContent>
+        <CardFooter className="bg-gray-50 dark:bg-gray-800/50">
+          <Button
+            onClick={handleLogin}
+            disabled={isLoading}
+            className="w-full bg-orange-400 hover:bg-orange-500 text-white"
+          >
+            {isLoading ? "Chargement des données..." : "Se connecter"}
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
   )
 }

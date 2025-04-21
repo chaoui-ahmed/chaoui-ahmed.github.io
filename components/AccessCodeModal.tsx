@@ -65,30 +65,33 @@ export default function AccessCodeModal({ onComplete }: AccessCodeModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Code d'accès</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-md bg-white dark:bg-gray-800 border-2 border-black dark:border-gray-700">
+        <DialogHeader className="bg-orange-100 dark:bg-orange-900/30 p-4 -mx-6 -mt-6 rounded-t-lg">
+          <DialogTitle className="text-orange-600 dark:text-orange-300">Code d'accès</DialogTitle>
+          <DialogDescription className="text-orange-700 dark:text-orange-400">
             Créez un code d'accès pour pouvoir accéder à vos données depuis n'importe quel appareil.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="accessCode">Votre code d'accès</Label>
+            <Label htmlFor="accessCode" className="text-gray-800 dark:text-gray-200">
+              Votre code d'accès
+            </Label>
             <Input
               id="accessCode"
               placeholder="Entrez un code d'accès mémorable"
               value={accessCode}
               onChange={(e) => setAccessCodeState(e.target.value)}
+              className="border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
             />
           </div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Ce code vous permettra d'accéder à vos entrées de journal depuis n'importe quel appareil. Conservez-le
             précieusement et ne le partagez avec personne.
           </p>
         </div>
-        <DialogFooter>
-          <Button onClick={handleSaveCode} className="bg-orange-300 hover:bg-orange-400 text-black">
+        <DialogFooter className="bg-gray-50 dark:bg-gray-800/50 p-4 -mx-6 -mb-6 rounded-b-lg">
+          <Button onClick={handleSaveCode} className="bg-orange-400 hover:bg-orange-500 text-white">
             Sauvegarder
           </Button>
         </DialogFooter>

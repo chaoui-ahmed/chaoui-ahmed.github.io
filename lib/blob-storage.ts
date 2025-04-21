@@ -7,11 +7,21 @@ const PHOTOS_BLOB_PREFIX = "journal-photos/"
 // Fonction pour sauvegarder une entrée de journal dans Blob Storage
 export async function saveEntryToBlob(entry: JournalEntry, accessCode: string): Promise<string> {
   try {
+    if (!accessCode || accessCode.trim() === "") {
+      throw new Error("Empty access code provided to saveEntryToBlob")
+    }
+
+    if (!entry || !entry.id) {
+      throw new Error("Invalid entry provided to saveEntryToBlob")
+    }
+
     // Convertir l'entrée en JSON
     const entryJson = JSON.stringify(entry)
 
     // Créer un nom de fichier basé sur l'ID de l'entrée et le code d'accès
     const filename = `${ENTRIES_BLOB_PREFIX}${accessCode}/${entry.id}.json`
+
+    console.log(`Saving entry to Blob Storage: ${filename}`)
 
     // Sauvegarder le fichier dans Blob Storage
     const blob = await put(filename, entryJson, {
@@ -30,31 +40,50 @@ export async function saveEntryToBlob(entry: JournalEntry, accessCode: string): 
 // Fonction pour récupérer toutes les entrées de journal depuis Blob Storage
 export async function getAllEntriesFromBlob(accessCode: string): Promise<JournalEntry[]> {
   try {
+    if (!accessCode || accessCode.trim() === "") {
+      console.error("Empty access code provided to getAllEntriesFromBlob")
+      return []
+    }
+
+    console.log(`Listing blobs with prefix: ${ENTRIES_BLOB_PREFIX}${accessCode}/`)
+
     // Lister tous les fichiers avec le préfixe des entrées et le code d'accès
     const { blobs } = await list({ prefix: `${ENTRIES_BLOB_PREFIX}${accessCode}/` })
 
     // Si aucun fichier n'est trouvé, retourner un tableau vide
     if (!blobs || blobs.length === 0) {
+      console.log(`No entries found for access code: ${accessCode}`)
       return []
     }
 
+    console.log(`Found ${blobs.length} entries for access code: ${accessCode}`)
+
     // Récupérer le contenu de chaque fichier
     const entriesPromises = blobs.map(async (blob) => {
-      const response = await fetch(blob.url)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch entry: ${response.statusText}`)
+      try {
+        console.log(`Fetching entry from: ${blob.url}`)
+        const response = await fetch(blob.url)
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch entry: ${response.statusText}`)
+        }
+
+        const entry = (await response.json()) as JournalEntry
+        return entry
+      } catch (error) {
+        console.error(`Error fetching entry from ${blob.url}:`, error)
+        return null
       }
-      return (await response.json()) as JournalEntry
     })
 
     // Attendre que toutes les entrées soient récupérées
-    const entries = await Promise.all(entriesPromises)
+    const entries = (await Promise.all(entriesPromises)).filter((entry) => entry !== null) as JournalEntry[]
 
     // Trier les entrées par date (plus récentes en premier)
     return entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   } catch (error) {
     console.error("Error getting entries from Blob Storage:", error)
-    throw error
+    return []
   }
 }
 
