@@ -1,11 +1,7 @@
 import type { JournalEntry } from "@/types/JournalEntry"
-import { createClient } from "@/utils/supabase/client"
+import { saveEntryToBlob, getAllEntriesFromBlob, uploadPhotoToBlob } from "@/lib/blob-storage"
 
 const CACHE_KEY = "journal_entries_cache"
-const SUPABASE_ENABLED_KEY = "supabase_enabled"
-
-// Fonction pour récupérer le client Supabase
-const getSupabase = () => createClient()
 
 // Fonctions de cache local
 const cacheEntries = (entries: JournalEntry[]) => {
@@ -20,182 +16,66 @@ const getCachedEntries = (): JournalEntry[] => {
   return cached ? JSON.parse(cached) : []
 }
 
-// Fonction pour vérifier si Supabase est activé
-const isSupabaseEnabled = (): boolean => {
-  if (typeof window === "undefined") return false
-  return localStorage.getItem(SUPABASE_ENABLED_KEY) === "true"
-}
-
-// Fonction pour définir si Supabase est activé
-const setSupabaseEnabled = (enabled: boolean) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(SUPABASE_ENABLED_KEY, enabled ? "true" : "false")
-  }
-}
-
-// Fonction pour vérifier si la table existe
-export const checkTableExists = async (): Promise<boolean> => {
-  try {
-    // Si Supabase est désactivé, retourner false immédiatement
-    if (!isSupabaseEnabled()) {
-      console.log("Supabase is disabled, using local storage only")
-      return false
-    }
-
-    const supabase = getSupabase()
-
-    // Afficher les informations de connexion pour le débogage (sans les valeurs sensibles)
-    console.log("NEXT_PUBLIC_SUPABASE_URL exists:", !!process.env.NEXT_PUBLIC_SUPABASE_URL)
-    console.log("NEXT_PUBLIC_SUPABASE_ANON_KEY exists:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-
-    // Vérifier si la table existe déjà en essayant de récupérer une entrée
-    console.log("Checking if journal_entries table exists...")
-    try {
-      const { data, error } = await supabase.from("journal_entries").select("id").limit(1)
-
-      // Si une erreur se produit, afficher les détails
-      if (error) {
-        console.log("Table access error:", error.message, error.code, error.details)
-        setSupabaseEnabled(false)
-        return false
-      }
-
-      console.log("Table journal_entries exists and is accessible, data:", data)
-      setSupabaseEnabled(true)
-      return true
-    } catch (queryError) {
-      console.log("Query error:", queryError)
-      setSupabaseEnabled(false)
-      return false
-    }
-  } catch (error) {
-    console.log("Error checking table:", error)
-    setSupabaseEnabled(false)
-    return false
-  }
-}
-
+// Fonction pour sauvegarder une entrée
 export const saveEntry = async (entry: JournalEntry) => {
-  // Sauvegarder d'abord dans le cache local
-  const cachedEntries = getCachedEntries()
-  const existingEntryIndex = cachedEntries.findIndex((e) => e.id === entry.id)
-
-  if (existingEntryIndex >= 0) {
-    cachedEntries[existingEntryIndex] = entry
-  } else {
-    cachedEntries.push(entry)
-  }
-
-  cacheEntries(cachedEntries)
-  console.log("Entry saved to local cache")
-
-  // Essayer de sauvegarder dans Supabase si activé
   try {
-    // Vérifier si la table existe
-    const tableExists = await checkTableExists()
+    // Sauvegarder d'abord dans le cache local
+    const cachedEntries = getCachedEntries()
+    const existingEntryIndex = cachedEntries.findIndex((e) => e.id === entry.id)
 
-    // Si la table n'existe pas, on utilise uniquement le stockage local
-    if (!tableExists) {
-      return
+    if (existingEntryIndex >= 0) {
+      cachedEntries[existingEntryIndex] = entry
+    } else {
+      cachedEntries.push(entry)
     }
 
-    const supabase = getSupabase()
-    console.log("Saving entry to Supabase:", entry.id)
+    cacheEntries(cachedEntries)
+    console.log("Entry saved to local cache")
 
-    // Insérer l'entrée dans Supabase
-    const { error } = await supabase.from("journal_entries").upsert({
-      id: entry.id,
-      content: entry.content,
-      mood: entry.mood,
-      hashtags: entry.hashtags,
-      date: entry.date,
-      photos: entry.photos || [],
-    })
-
-    if (error) {
-      console.log("Error saving to Supabase, using local storage only:", error.message)
-      return
-    }
-
-    console.log("Entry saved successfully to Supabase")
+    // Sauvegarder dans Blob Storage
+    await saveEntryToBlob(entry)
+    console.log("Entry saved to Blob Storage")
   } catch (error) {
-    console.log("Error saving to Supabase, using local storage only:", error)
+    console.error("Error saving entry to Blob Storage:", error)
+    // Déjà sauvegardé dans le cache local, donc pas besoin de le refaire
   }
 }
 
+// Fonction pour récupérer toutes les entrées
 export const getAllEntries = async (): Promise<JournalEntry[]> => {
   try {
-    // Vérifier si la table existe
-    const tableExists = await checkTableExists()
-
-    // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      const cachedEntries = getCachedEntries()
-      console.log(`Retrieved ${cachedEntries.length} entries from local cache`)
-      return cachedEntries
-    }
-
-    const supabase = getSupabase()
-    console.log("Fetching all entries from Supabase...")
-
-    // Récupérer toutes les entrées depuis Supabase
-    const { data, error } = await supabase.from("journal_entries").select("*").order("date", { ascending: false })
-
-    if (error) {
-      console.log("Error fetching from Supabase, using local cache:", error.message)
-      const cachedEntries = getCachedEntries()
-      return cachedEntries
-    }
-
-    console.log(`Retrieved ${data.length} entries from Supabase`)
+    // Essayer de récupérer depuis Blob Storage
+    const entries = await getAllEntriesFromBlob()
+    console.log(`Retrieved ${entries.length} entries from Blob Storage`)
 
     // Mettre à jour le cache local
-    cacheEntries(data)
-    return data
+    cacheEntries(entries)
+    return entries
   } catch (error) {
-    console.log("Error fetching entries, using local cache:", error)
+    console.error("Error getting entries from Blob Storage:", error)
+    // Fallback vers le cache local
     const cachedEntries = getCachedEntries()
+    console.log(`Retrieved ${cachedEntries.length} entries from local cache`)
     return cachedEntries
   }
 }
 
+// Fonction pour rechercher des entrées par hashtag
 export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEntry[]> => {
   try {
-    // Vérifier si la table existe
-    const tableExists = await checkTableExists()
+    // Récupérer toutes les entrées
+    const allEntries = await getAllEntries()
 
-    // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      const cachedEntries = getCachedEntries()
-      const filteredEntries = cachedEntries.filter((entry) =>
-        entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
-      )
-      console.log(`Found ${filteredEntries.length} entries with hashtag: ${hashtag} in local cache`)
-      return filteredEntries
-    }
+    // Filtrer par hashtag
+    const filteredEntries = allEntries.filter((entry) =>
+      entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
+    )
 
-    const supabase = getSupabase()
-
-    // Rechercher les entrées par hashtag dans Supabase
-    const { data, error } = await supabase
-      .from("journal_entries")
-      .select("*")
-      .contains("hashtags", [hashtag])
-      .order("date", { ascending: false })
-
-    if (error) {
-      console.log("Error searching in Supabase, using local cache:", error.message)
-      const cachedEntries = getCachedEntries()
-      const filteredEntries = cachedEntries.filter((entry) =>
-        entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
-      )
-      return filteredEntries
-    }
-
-    console.log(`Found ${data.length} entries with hashtag: ${hashtag}`)
-    return data
+    console.log(`Found ${filteredEntries.length} entries with hashtag: ${hashtag}`)
+    return filteredEntries
   } catch (error) {
-    console.log("Error searching entries, using local cache:", error)
+    console.error("Error searching entries by hashtag:", error)
+    // Fallback vers le cache local
     const cachedEntries = getCachedEntries()
     const filteredEntries = cachedEntries.filter((entry) =>
       entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
@@ -204,90 +84,43 @@ export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEn
   }
 }
 
+// Fonction pour rechercher des entrées par contenu
 export const searchEntriesByContent = async (term: string): Promise<JournalEntry[]> => {
   try {
-    // Vérifier si la table existe
-    const tableExists = await checkTableExists()
+    // Récupérer toutes les entrées
+    const allEntries = await getAllEntries()
 
-    // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      const cachedEntries = getCachedEntries()
-      const filteredEntries = cachedEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
-      console.log(`Found ${filteredEntries.length} entries containing: ${term} in local cache`)
-      return filteredEntries
-    }
+    // Filtrer par contenu
+    const filteredEntries = allEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
 
-    const supabase = getSupabase()
-
-    // Rechercher les entrées par contenu dans Supabase
-    const { data, error } = await supabase
-      .from("journal_entries")
-      .select("*")
-      .ilike("content", `%${term}%`)
-      .order("date", { ascending: false })
-
-    if (error) {
-      console.log("Error searching in Supabase, using local cache:", error.message)
-      const cachedEntries = getCachedEntries()
-      const filteredEntries = cachedEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
-      return filteredEntries
-    }
-
-    console.log(`Found ${data.length} entries containing: ${term}`)
-    return data
+    console.log(`Found ${filteredEntries.length} entries containing: ${term}`)
+    return filteredEntries
   } catch (error) {
-    console.log("Error searching entries, using local cache:", error)
+    console.error("Error searching entries by content:", error)
+    // Fallback vers le cache local
     const cachedEntries = getCachedEntries()
     const filteredEntries = cachedEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
     return filteredEntries
   }
 }
 
+// Fonction pour récupérer des entrées par date
 export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
   try {
-    // Vérifier si la table existe
-    const tableExists = await checkTableExists()
+    // Récupérer toutes les entrées
+    const allEntries = await getAllEntries()
 
-    // Si la table n'existe pas, on utilise le cache local
-    if (!tableExists) {
-      const cachedEntries = getCachedEntries()
-      const filteredEntries = cachedEntries.filter((entry) => {
-        const entryDate = new Date(entry.date)
-        return entryDate.toDateString() === date.toDateString()
-      })
-      console.log(
-        `Found ${filteredEntries.length} entries for date: ${date.toISOString().split("T")[0]} in local cache`,
-      )
-      return filteredEntries
-    }
+    // Filtrer par date
+    const filteredEntries = allEntries.filter((entry) => {
+      const entryDate = new Date(entry.date)
+      return entryDate.toDateString() === date.toDateString()
+    })
 
-    const supabase = getSupabase()
-
-    // Formater la date pour la requête
-    const dateString = date.toISOString().split("T")[0]
-
-    // Récupérer les entrées par date dans Supabase
-    const { data, error } = await supabase
-      .from("journal_entries")
-      .select("*")
-      .gte("date", `${dateString}T00:00:00Z`)
-      .lt("date", `${dateString}T23:59:59Z`)
-      .order("date", { ascending: false })
-
-    if (error) {
-      console.log("Error fetching from Supabase, using local cache:", error.message)
-      const cachedEntries = getCachedEntries()
-      const filteredEntries = cachedEntries.filter((entry) => {
-        const entryDate = new Date(entry.date)
-        return entryDate.toDateString() === date.toDateString()
-      })
-      return filteredEntries
-    }
-
-    console.log(`Found ${data.length} entries for date: ${dateString}`)
-    return data
+    console.log(`Found ${filteredEntries.length} entries for date: ${date.toISOString().split("T")[0]}`)
+    return filteredEntries
   } catch (error) {
-    console.log("Error fetching entries, using local cache:", error)
+    console.error("Error getting entries by date:", error)
+    // Fallback vers le cache local
     const cachedEntries = getCachedEntries()
     const filteredEntries = cachedEntries.filter((entry) => {
       const entryDate = new Date(entry.date)
@@ -297,6 +130,18 @@ export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
   }
 }
 
+// Fonction pour télécharger une photo
+export const uploadPhoto = async (file: File, entryId: string): Promise<string> => {
+  try {
+    const photoUrl = await uploadPhotoToBlob(file, entryId)
+    return photoUrl
+  } catch (error) {
+    console.error("Error uploading photo:", error)
+    throw error
+  }
+}
+
+// Fonctions pour les brouillons
 export const saveDraft = (key: string, value: any) => {
   try {
     if (typeof window !== "undefined") {
@@ -320,34 +165,20 @@ export const loadDraft = (key: string) => {
   }
 }
 
-// Fonction pour synchroniser les entrées locales avec Supabase
-export const syncLocalEntriesToSupabase = async () => {
+// Fonction pour synchroniser les entrées locales avec Blob Storage
+export const syncLocalEntriesToBlob = async () => {
   try {
-    // Vérifier si la table existe
-    const tableExists = await checkTableExists()
-
-    // Si la table n'existe pas, on ne peut pas synchroniser
-    if (!tableExists) {
-      console.log("Table does not exist, cannot sync")
-      return
-    }
-
-    const supabase = getSupabase()
     const localEntries = getCachedEntries()
     if (localEntries.length === 0) return
 
-    console.log(`Syncing ${localEntries.length} local entries to Supabase`)
+    console.log(`Syncing ${localEntries.length} local entries to Blob Storage`)
 
-    // Utiliser upsert pour ajouter ou mettre à jour les entrées
-    const { error } = await supabase.from("journal_entries").upsert(localEntries)
+    // Sauvegarder chaque entrée dans Blob Storage
+    const savePromises = localEntries.map((entry) => saveEntryToBlob(entry))
+    await Promise.all(savePromises)
 
-    if (error) {
-      console.log("Error syncing to Supabase:", error.message)
-      return
-    }
-
-    console.log("Local entries successfully synced to Supabase")
+    console.log("Local entries successfully synced to Blob Storage")
   } catch (error) {
-    console.log("Error syncing entries:", error)
+    console.error("Error syncing entries to Blob Storage:", error)
   }
 }

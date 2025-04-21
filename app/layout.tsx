@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import type React from "react"
-import SupabaseInitializer from "@/components/SupabaseInitializer"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -21,7 +20,6 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${inter.className} bg-[#f5f5f0]`}>
-        <SupabaseInitializer />
         {children}
         <Toaster />
       </body>

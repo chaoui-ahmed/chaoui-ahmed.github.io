@@ -1,17 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import type React from "react"
+
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Camera, Save, Hash, CloudIcon as CloudSync } from "lucide-react"
+import { Camera, Save, Hash, X, Upload } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { saveEntry, getAllEntries, saveDraft, loadDraft, syncLocalEntriesToSupabase } from "@/lib/storage"
+import { saveEntry, getAllEntries, saveDraft, loadDraft, uploadPhoto, syncLocalEntriesToBlob } from "@/lib/storage"
 import type { JournalEntry } from "@/types/JournalEntry"
+import Image from "next/image"
 
 export default function JournalEntryComponent() {
   const [mood, setMood] = useState("neutre")
@@ -21,6 +24,10 @@ export default function JournalEntryComponent() {
   const [streak, setStreak] = useState(0)
   const [daysSinceLastEntry, setDaysSinceLastEntry] = useState(0)
   const [isSyncing, setIsSyncing] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [photos, setPhotos] = useState<string[]>([])
+  const [previewPhotos, setPreviewPhotos] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -60,13 +67,18 @@ export default function JournalEntryComponent() {
         const savedContent = loadDraft("content")
         const savedMood = loadDraft("mood")
         const savedHashtags = loadDraft("hashtags")
+        const savedPhotos = loadDraft("photos")
 
         if (savedContent) setContent(savedContent)
         if (savedMood) setMood(savedMood)
         if (savedHashtags) setHashtags(savedHashtags)
+        if (savedPhotos) {
+          setPhotos(savedPhotos)
+          setPreviewPhotos(savedPhotos)
+        }
 
-        // Synchroniser les entrées locales avec Supabase au chargement
-        syncLocalEntriesToSupabase()
+        // Synchroniser les entrées locales avec Blob Storage au chargement
+        syncLocalEntriesToBlob()
       } catch (error) {
         console.error("Error loading entries:", error)
         toast({
@@ -87,6 +99,7 @@ export default function JournalEntryComponent() {
         saveDraft("content", content)
         saveDraft("mood", mood)
         saveDraft("hashtags", hashtags)
+        saveDraft("photos", photos)
       } catch (error) {
         console.error("Error saving draft:", error)
         toast({
@@ -98,7 +111,7 @@ export default function JournalEntryComponent() {
     }
 
     saveDraftData()
-  }, [content, mood, hashtags, toast])
+  }, [content, mood, hashtags, photos, toast])
 
   const handleMoodChange = (value: string) => {
     setMood(value)
@@ -119,6 +132,7 @@ export default function JournalEntryComponent() {
         mood,
         hashtags: hashtags.split(" ").filter((tag) => tag.length > 0),
         date: new Date().toISOString(),
+        photos: photos,
       }
 
       await saveEntry(entry)
@@ -127,6 +141,7 @@ export default function JournalEntryComponent() {
       saveDraft("content", "")
       saveDraft("mood", "neutre")
       saveDraft("hashtags", "")
+      saveDraft("photos", [])
 
       toast({
         title: "Entrée sauvegardée",
@@ -137,6 +152,8 @@ export default function JournalEntryComponent() {
       setContent("")
       setMood("neutre")
       setHashtags("")
+      setPhotos([])
+      setPreviewPhotos([])
       setHasEntryToday(true)
     } catch (error) {
       console.error("Error saving entry:", error)
@@ -151,10 +168,10 @@ export default function JournalEntryComponent() {
   const handleSync = async () => {
     setIsSyncing(true)
     try {
-      await syncLocalEntriesToSupabase()
+      await syncLocalEntriesToBlob()
       toast({
         title: "Synchronisation réussie",
-        description: "Vos entrées ont été synchronisées avec Supabase.",
+        description: "Vos entrées ont été synchronisées avec Blob Storage.",
         className: "bg-green-100 border-green-400 text-green-800",
       })
     } catch (error) {
@@ -167,6 +184,78 @@ export default function JournalEntryComponent() {
     } finally {
       setIsSyncing(false)
     }
+  }
+
+  const handlePhotoClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    // Vérifier si le nombre maximum de photos est atteint
+    if (photos.length + files.length > 5) {
+      toast({
+        title: "Limite atteinte",
+        description: "Vous ne pouvez pas ajouter plus de 5 photos par entrée.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsUploading(true)
+
+    try {
+      // Créer un ID temporaire pour l'entrée si elle n'existe pas encore
+      const tempEntryId = Date.now().toString()
+
+      // Télécharger chaque fichier
+      const newPhotos: string[] = []
+      const newPreviewPhotos: string[] = []
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+
+        // Créer une URL de prévisualisation
+        const previewUrl = URL.createObjectURL(file)
+        newPreviewPhotos.push(previewUrl)
+
+        // Télécharger la photo
+        const photoUrl = await uploadPhoto(file, tempEntryId)
+        newPhotos.push(photoUrl)
+      }
+
+      // Mettre à jour les photos
+      setPhotos((prev) => [...prev, ...newPhotos])
+      setPreviewPhotos((prev) => [...prev, ...newPreviewPhotos])
+
+      toast({
+        title: "Photos téléchargées",
+        description: `${newPhotos.length} photo(s) ajoutée(s) avec succès.`,
+        className: "bg-green-100 border-green-400 text-green-800",
+      })
+    } catch (error) {
+      console.error("Error uploading photos:", error)
+      toast({
+        title: "Error",
+        description: `Failed to upload photos: ${error instanceof Error ? error.message : String(error)}`,
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+      // Réinitialiser l'input file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
+  }
+
+  const handleRemovePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index))
+    setPreviewPhotos((prev) => prev.filter((_, i) => i !== index))
   }
 
   return (
@@ -227,18 +316,69 @@ export default function JournalEntryComponent() {
             />
           </div>
         </div>
+
+        {/* Prévisualisation des photos */}
+        {previewPhotos.length > 0 && (
+          <div className="mb-4">
+            <Label className="text-black mb-2 block">Photos ({previewPhotos.length}/5)</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {previewPhotos.map((photoUrl, index) => (
+                <div key={index} className="relative h-24 rounded-md overflow-hidden">
+                  <Image
+                    src={photoUrl || "/placeholder.svg"}
+                    alt={`Photo ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                    onClick={() => handleRemovePhoto(index)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Input file caché */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handlePhotoChange}
+          accept="image/*"
+          multiple
+          className="hidden"
+          disabled={isUploading || photos.length >= 5}
+        />
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between gap-2">
-        <Button variant="outline" className="border-black text-black hover:bg-orange-50 hover:text-orange-400">
-          <Camera className="mr-2 h-4 w-4" />
-          Ajouter une Photo (max 5)
+        <Button
+          variant="outline"
+          className="border-black text-black hover:bg-orange-50 hover:text-orange-400"
+          onClick={handlePhotoClick}
+          disabled={isUploading || photos.length >= 5}
+        >
+          {isUploading ? (
+            <>
+              <Upload className="mr-2 h-4 w-4 animate-spin" />
+              Téléchargement...
+            </>
+          ) : (
+            <>
+              <Camera className="mr-2 h-4 w-4" />
+              Ajouter une Photo ({photos.length}/5)
+            </>
+          )}
         </Button>
         <Button onClick={handleSave} className="bg-orange-300 hover:bg-orange-400 text-black">
           <Save className="mr-2 h-4 w-4" />
           Sauvegarder le Pixel
         </Button>
         <Button onClick={handleSync} disabled={isSyncing} className="bg-purple-300 hover:bg-purple-400 text-black">
-          <CloudSync className="mr-2 h-4 w-4" />
           {isSyncing ? "Synchronisation..." : "Synchroniser"}
         </Button>
       </CardFooter>

@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar"
 import SearchBar from "@/components/SearchBar"
 import { getAllEntries, getEntriesByDate, type JournalEntry } from "@/lib/storage"
 import AnimatedBackground from "@/components/AnimatedBackground"
+import Image from "next/image"
 
 export default function Entries() {
   const [date, setDate] = useState<Date | undefined>(new Date())
@@ -64,6 +65,21 @@ export default function Entries() {
                           </span>
                         ))}
                       </div>
+                      {/* Afficher les photos */}
+                      {entry.photos && entry.photos.length > 0 && (
+                        <div className="mt-2 flex gap-1 overflow-x-auto">
+                          {entry.photos.map((photo, i) => (
+                            <div key={i} className="relative h-16 w-16 flex-shrink-0">
+                              <Image
+                                src={photo || "/placeholder.svg"}
+                                alt={`Photo ${i + 1}`}
+                                fill
+                                className="object-cover rounded-md"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -90,6 +106,21 @@ export default function Entries() {
                           </span>
                         ))}
                       </div>
+                      {/* Afficher les photos */}
+                      {entry.photos && entry.photos.length > 0 && (
+                        <div className="mt-2 flex gap-1 overflow-x-auto">
+                          {entry.photos.map((photo, i) => (
+                            <div key={i} className="relative h-16 w-16 flex-shrink-0">
+                              <Image
+                                src={photo || "/placeholder.svg"}
+                                alt={`Photo ${i + 1}`}
+                                fill
+                                className="object-cover rounded-md"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
