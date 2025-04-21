@@ -5,4 +5,5 @@ export interface JournalEntry {
   hashtags: string[]
   date: string
   photos?: string[]
+  userId?: string // Add userId field
 }

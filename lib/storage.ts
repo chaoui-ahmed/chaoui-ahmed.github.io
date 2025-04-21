@@ -1,4 +1,5 @@
 import type { JournalEntry } from "@/types/JournalEntry"
+import { getSession } from "next-auth/react"
 
 const DB_NAME = "journal_db"
 const DB_VERSION = 1
@@ -103,14 +104,23 @@ export const validateAccessCode = async (code: string): Promise<boolean> => {
 export const getAllEntries = async (): Promise<JournalEntry[]> => {
   try {
     const db = await initDB()
+    const session = await getSession()
+    const userId = session?.user?.id
+
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(ENTRIES_STORE, "readonly")
       const store = transaction.objectStore(ENTRIES_STORE)
       const request = store.getAll()
 
       request.onsuccess = () => {
+        // Filter entries by user ID if logged in
+        let entries = request.result
+        if (userId) {
+          entries = entries.filter((entry) => !entry.userId || entry.userId === userId)
+        }
+
         // Trier par date (plus récentes en premier)
-        const entries = request.result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        entries = entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         resolve(entries)
       }
 
@@ -129,6 +139,13 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
 export const saveEntry = async (entry: JournalEntry): Promise<void> => {
   try {
     const db = await initDB()
+    const session = await getSession()
+
+    // Add user ID to entry if logged in
+    if (session?.user?.id) {
+      entry.userId = session.user.id
+    }
+
     return new Promise((resolve, reject) => {
       const transaction = db.transaction(ENTRIES_STORE, "readwrite")
       const store = transaction.objectStore(ENTRIES_STORE)

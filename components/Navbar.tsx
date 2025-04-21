@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CalendarDays, Settings, TrendingUp, Download, PenTool } from "lucide-react"
 import Image from "next/image"
+import { SignInButton, SignOutButton, UserInfo } from "./auth-buttons"
 
 export default function Navbar() {
   return (
@@ -62,6 +63,19 @@ export default function Navbar() {
               Exporter/Importer
             </Button>
           </Link>
+          <Link href="/auth-test">
+            <Button
+              variant="ghost"
+              className="text-black hover:text-orange-400 dark:text-white dark:hover:text-orange-300"
+            >
+              Test Auth
+            </Button>
+          </Link>
+          <div className="ml-2 flex items-center gap-2">
+            <UserInfo />
+            <SignInButton />
+            <SignOutButton />
+          </div>
         </div>
       </div>
     </nav>

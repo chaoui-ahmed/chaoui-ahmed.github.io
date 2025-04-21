@@ -58,9 +58,12 @@
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
     "zod": "^3.24.1",
+    "@auth/core": "latest",
+    "nodemailer": "latest",
     "@vercel/blob": "latest",
     "firebase": "latest",
-    "@supabase/supabase-js": "latest"
+    "@supabase/supabase-js": "latest",
+    "next-auth": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
