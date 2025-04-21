@@ -2,6 +2,7 @@ import type { JournalEntry } from "@/types/JournalEntry"
 import { createClient } from "@/utils/supabase/client"
 
 const CACHE_KEY = "journal_entries_cache"
+const SUPABASE_ENABLED_KEY = "supabase_enabled"
 
 // Fonction pour récupérer le client Supabase
 const getSupabase = () => createClient()
@@ -19,180 +20,86 @@ const getCachedEntries = (): JournalEntry[] => {
   return cached ? JSON.parse(cached) : []
 }
 
-// Fonction pour créer la table si elle n'existe pas
-export const createTableIfNotExists = async (): Promise<{ success: boolean; message: string }> => {
-  try {
-    const supabase = getSupabase()
+// Fonction pour vérifier si Supabase est activé
+const isSupabaseEnabled = (): boolean => {
+  if (typeof window === "undefined") return false
+  return localStorage.getItem(SUPABASE_ENABLED_KEY) === "true"
+}
 
-    // Vérifier si la table existe déjà
-    console.log("Checking if journal_entries table exists...")
-    const { error: checkError } = await supabase.from("journal_entries").select("id").limit(1)
-
-    // Si la table n'existe pas, on la crée
-    if (checkError && checkError.message.includes("does not exist")) {
-      console.log("Table journal_entries does not exist, creating it...")
-
-      // Créer la table avec SQL
-      const { error: createError } = await supabase.rpc("exec_sql", {
-        sql_query: `
-          CREATE TABLE IF NOT EXISTS journal_entries (
-            id TEXT PRIMARY KEY,
-            content TEXT NOT NULL,
-            mood TEXT NOT NULL,
-            hashtags TEXT[] NOT NULL,
-            date TIMESTAMPTZ NOT NULL,
-            photos TEXT[] DEFAULT '{}'
-          );
-          
-          -- Créer un index sur la date
-          CREATE INDEX IF NOT EXISTS journal_entries_date_idx ON journal_entries(date);
-          
-          -- Activer RLS
-          ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
-          
-          -- Créer une politique pour permettre toutes les opérations
-          CREATE POLICY "Enable all operations for all users" ON journal_entries
-            USING (true)
-            WITH CHECK (true);
-        `,
-      })
-
-      if (createError) {
-        console.error("Error creating table:", createError)
-
-        // Si l'erreur est liée aux permissions
-        if (createError.message.includes("permission") || createError.message.includes("access")) {
-          return {
-            success: false,
-            message: "Vous n'avez pas les permissions nécessaires pour créer la table. Veuillez la créer manuellement.",
-          }
-        }
-
-        // Si la fonction RPC n'existe pas
-        if (createError.message.includes("function") && createError.message.includes("does not exist")) {
-          return {
-            success: false,
-            message: "La fonction exec_sql n'existe pas. Veuillez créer la table manuellement.",
-          }
-        }
-
-        return {
-          success: false,
-          message: `Erreur lors de la création de la table: ${createError.message}`,
-        }
-      }
-
-      console.log("Table journal_entries created successfully")
-      return {
-        success: true,
-        message: "Table journal_entries créée avec succès.",
-      }
-    } else if (checkError) {
-      // Si l'erreur est liée aux permissions
-      if (checkError.message.includes("permission") || checkError.message.includes("access")) {
-        console.log("Permission error accessing journal_entries table:", checkError.message)
-        return {
-          success: false,
-          message:
-            "Vous n'avez pas les permissions nécessaires pour accéder à la table. Veuillez configurer les politiques RLS.",
-        }
-      }
-
-      console.log("Unknown error accessing journal_entries table:", checkError.message)
-      return {
-        success: false,
-        message: `Erreur lors de l'accès à la table: ${checkError.message}`,
-      }
-    }
-
-    console.log("Table journal_entries exists and is accessible")
-    return {
-      success: true,
-      message: "Table journal_entries existe et est accessible.",
-    }
-  } catch (error) {
-    console.error("Error checking/creating table:", error)
-    return {
-      success: false,
-      message: `Erreur lors de la vérification/création de la table: ${error instanceof Error ? error.message : String(error)}`,
-    }
+// Fonction pour définir si Supabase est activé
+const setSupabaseEnabled = (enabled: boolean) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(SUPABASE_ENABLED_KEY, enabled ? "true" : "false")
   }
 }
 
-// Fonction pour créer la table manuellement avec SQL brut
-export const createTableManually = async (): Promise<{ success: boolean; message: string }> => {
+// Fonction pour vérifier si la table existe
+export const checkTableExists = async (): Promise<boolean> => {
   try {
+    // Si Supabase est désactivé, retourner false immédiatement
+    if (!isSupabaseEnabled()) {
+      console.log("Supabase is disabled, using local storage only")
+      return false
+    }
+
     const supabase = getSupabase()
 
-    // Utiliser l'API REST pour exécuter du SQL brut
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""}`,
-        Prefer: "return=minimal",
-      },
-      body: JSON.stringify({
-        query: `
-          CREATE TABLE IF NOT EXISTS journal_entries (
-            id TEXT PRIMARY KEY,
-            content TEXT NOT NULL,
-            mood TEXT NOT NULL,
-            hashtags TEXT[] NOT NULL,
-            date TIMESTAMPTZ NOT NULL,
-            photos TEXT[] DEFAULT '{}'
-          );
-          
-          -- Créer un index sur la date
-          CREATE INDEX IF NOT EXISTS journal_entries_date_idx ON journal_entries(date);
-          
-          -- Activer RLS
-          ALTER TABLE journal_entries ENABLE ROW LEVEL SECURITY;
-          
-          -- Créer une politique pour permettre toutes les opérations
-          CREATE POLICY "Enable all operations for all users" ON journal_entries
-            USING (true)
-            WITH CHECK (true);
-        `,
-      }),
-    })
+    // Afficher les informations de connexion pour le débogage (sans les valeurs sensibles)
+    console.log("NEXT_PUBLIC_SUPABASE_URL exists:", !!process.env.NEXT_PUBLIC_SUPABASE_URL)
+    console.log("NEXT_PUBLIC_SUPABASE_ANON_KEY exists:", !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("Error creating table with REST API:", errorText)
-      return {
-        success: false,
-        message: `Erreur lors de la création de la table: ${errorText}`,
+    // Vérifier si la table existe déjà en essayant de récupérer une entrée
+    console.log("Checking if journal_entries table exists...")
+    try {
+      const { data, error } = await supabase.from("journal_entries").select("id").limit(1)
+
+      // Si une erreur se produit, afficher les détails
+      if (error) {
+        console.log("Table access error:", error.message, error.code, error.details)
+        setSupabaseEnabled(false)
+        return false
       }
-    }
 
-    console.log("Table journal_entries created successfully with REST API")
-    return {
-      success: true,
-      message: "Table journal_entries créée avec succès.",
+      console.log("Table journal_entries exists and is accessible, data:", data)
+      setSupabaseEnabled(true)
+      return true
+    } catch (queryError) {
+      console.log("Query error:", queryError)
+      setSupabaseEnabled(false)
+      return false
     }
   } catch (error) {
-    console.error("Error creating table manually:", error)
-    return {
-      success: false,
-      message: `Erreur lors de la création manuelle de la table: ${error instanceof Error ? error.message : String(error)}`,
-    }
+    console.log("Error checking table:", error)
+    setSupabaseEnabled(false)
+    return false
   }
 }
 
 export const saveEntry = async (entry: JournalEntry) => {
-  try {
-    const supabase = getSupabase()
+  // Sauvegarder d'abord dans le cache local
+  const cachedEntries = getCachedEntries()
+  const existingEntryIndex = cachedEntries.findIndex((e) => e.id === entry.id)
 
+  if (existingEntryIndex >= 0) {
+    cachedEntries[existingEntryIndex] = entry
+  } else {
+    cachedEntries.push(entry)
+  }
+
+  cacheEntries(cachedEntries)
+  console.log("Entry saved to local cache")
+
+  // Essayer de sauvegarder dans Supabase si activé
+  try {
     // Vérifier si la table existe
-    const tableCheck = await createTableIfNotExists()
+    const tableExists = await checkTableExists()
 
     // Si la table n'existe pas, on utilise uniquement le stockage local
-    if (!tableCheck.success) {
-      throw new Error(tableCheck.message)
+    if (!tableExists) {
+      return
     }
 
+    const supabase = getSupabase()
     console.log("Saving entry to Supabase:", entry.id)
 
     // Insérer l'entrée dans Supabase
@@ -206,60 +113,38 @@ export const saveEntry = async (entry: JournalEntry) => {
     })
 
     if (error) {
-      console.error("Error in upsert operation:", error.message)
-      throw error
+      console.log("Error saving to Supabase, using local storage only:", error.message)
+      return
     }
 
     console.log("Entry saved successfully to Supabase")
-
-    // Mettre à jour le cache local
-    const cachedEntries = getCachedEntries()
-    const existingEntryIndex = cachedEntries.findIndex((e) => e.id === entry.id)
-
-    if (existingEntryIndex >= 0) {
-      cachedEntries[existingEntryIndex] = entry
-    } else {
-      cachedEntries.push(entry)
-    }
-
-    cacheEntries(cachedEntries)
   } catch (error) {
-    console.error("Error saving entry to Supabase:", error)
-    // Fallback vers le stockage local
-    const cachedEntries = getCachedEntries()
-    const existingEntryIndex = cachedEntries.findIndex((e) => e.id === entry.id)
-
-    if (existingEntryIndex >= 0) {
-      cachedEntries[existingEntryIndex] = entry
-    } else {
-      cachedEntries.push(entry)
-    }
-
-    cacheEntries(cachedEntries)
-    console.log("Entry saved to local cache")
+    console.log("Error saving to Supabase, using local storage only:", error)
   }
 }
 
 export const getAllEntries = async (): Promise<JournalEntry[]> => {
   try {
-    const supabase = getSupabase()
-
     // Vérifier si la table existe
-    const tableCheck = await createTableIfNotExists()
+    const tableExists = await checkTableExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableCheck.success) {
-      throw new Error(tableCheck.message)
+    if (!tableExists) {
+      const cachedEntries = getCachedEntries()
+      console.log(`Retrieved ${cachedEntries.length} entries from local cache`)
+      return cachedEntries
     }
 
+    const supabase = getSupabase()
     console.log("Fetching all entries from Supabase...")
 
     // Récupérer toutes les entrées depuis Supabase
     const { data, error } = await supabase.from("journal_entries").select("*").order("date", { ascending: false })
 
     if (error) {
-      console.error("Error in select operation:", error.message)
-      throw error
+      console.log("Error fetching from Supabase, using local cache:", error.message)
+      const cachedEntries = getCachedEntries()
+      return cachedEntries
     }
 
     console.log(`Retrieved ${data.length} entries from Supabase`)
@@ -268,25 +153,28 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
     cacheEntries(data)
     return data
   } catch (error) {
-    console.error("Error getting entries from Supabase:", error)
-    // Fallback vers le cache local
+    console.log("Error fetching entries, using local cache:", error)
     const cachedEntries = getCachedEntries()
-    console.log(`Retrieved ${cachedEntries.length} entries from local cache`)
     return cachedEntries
   }
 }
 
 export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEntry[]> => {
   try {
-    const supabase = getSupabase()
-
     // Vérifier si la table existe
-    const tableCheck = await createTableIfNotExists()
+    const tableExists = await checkTableExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableCheck.success) {
-      throw new Error(tableCheck.message)
+    if (!tableExists) {
+      const cachedEntries = getCachedEntries()
+      const filteredEntries = cachedEntries.filter((entry) =>
+        entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
+      )
+      console.log(`Found ${filteredEntries.length} entries with hashtag: ${hashtag} in local cache`)
+      return filteredEntries
     }
+
+    const supabase = getSupabase()
 
     // Rechercher les entrées par hashtag dans Supabase
     const { data, error } = await supabase
@@ -295,33 +183,41 @@ export const searchEntriesByHashtag = async (hashtag: string): Promise<JournalEn
       .contains("hashtags", [hashtag])
       .order("date", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.log("Error searching in Supabase, using local cache:", error.message)
+      const cachedEntries = getCachedEntries()
+      const filteredEntries = cachedEntries.filter((entry) =>
+        entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
+      )
+      return filteredEntries
+    }
 
     console.log(`Found ${data.length} entries with hashtag: ${hashtag}`)
     return data
   } catch (error) {
-    console.error("Error searching entries by hashtag:", error)
-    // Fallback vers le cache local
+    console.log("Error searching entries, using local cache:", error)
     const cachedEntries = getCachedEntries()
     const filteredEntries = cachedEntries.filter((entry) =>
       entry.hashtags.some((tag) => tag.toLowerCase().includes(hashtag.toLowerCase())),
     )
-    console.log(`Found ${filteredEntries.length} entries with hashtag: ${hashtag} in local cache`)
     return filteredEntries
   }
 }
 
 export const searchEntriesByContent = async (term: string): Promise<JournalEntry[]> => {
   try {
-    const supabase = getSupabase()
-
     // Vérifier si la table existe
-    const tableCheck = await createTableIfNotExists()
+    const tableExists = await checkTableExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableCheck.success) {
-      throw new Error(tableCheck.message)
+    if (!tableExists) {
+      const cachedEntries = getCachedEntries()
+      const filteredEntries = cachedEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
+      console.log(`Found ${filteredEntries.length} entries containing: ${term} in local cache`)
+      return filteredEntries
     }
+
+    const supabase = getSupabase()
 
     // Rechercher les entrées par contenu dans Supabase
     const { data, error } = await supabase
@@ -330,31 +226,42 @@ export const searchEntriesByContent = async (term: string): Promise<JournalEntry
       .ilike("content", `%${term}%`)
       .order("date", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.log("Error searching in Supabase, using local cache:", error.message)
+      const cachedEntries = getCachedEntries()
+      const filteredEntries = cachedEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
+      return filteredEntries
+    }
 
     console.log(`Found ${data.length} entries containing: ${term}`)
     return data
   } catch (error) {
-    console.error("Error searching entries by content:", error)
-    // Fallback vers le cache local
+    console.log("Error searching entries, using local cache:", error)
     const cachedEntries = getCachedEntries()
     const filteredEntries = cachedEntries.filter((entry) => entry.content.toLowerCase().includes(term.toLowerCase()))
-    console.log(`Found ${filteredEntries.length} entries containing: ${term} in local cache`)
     return filteredEntries
   }
 }
 
 export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
   try {
-    const supabase = getSupabase()
-
     // Vérifier si la table existe
-    const tableCheck = await createTableIfNotExists()
+    const tableExists = await checkTableExists()
 
     // Si la table n'existe pas, on utilise le cache local
-    if (!tableCheck.success) {
-      throw new Error(tableCheck.message)
+    if (!tableExists) {
+      const cachedEntries = getCachedEntries()
+      const filteredEntries = cachedEntries.filter((entry) => {
+        const entryDate = new Date(entry.date)
+        return entryDate.toDateString() === date.toDateString()
+      })
+      console.log(
+        `Found ${filteredEntries.length} entries for date: ${date.toISOString().split("T")[0]} in local cache`,
+      )
+      return filteredEntries
     }
+
+    const supabase = getSupabase()
 
     // Formater la date pour la requête
     const dateString = date.toISOString().split("T")[0]
@@ -367,19 +274,25 @@ export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
       .lt("date", `${dateString}T23:59:59Z`)
       .order("date", { ascending: false })
 
-    if (error) throw error
+    if (error) {
+      console.log("Error fetching from Supabase, using local cache:", error.message)
+      const cachedEntries = getCachedEntries()
+      const filteredEntries = cachedEntries.filter((entry) => {
+        const entryDate = new Date(entry.date)
+        return entryDate.toDateString() === date.toDateString()
+      })
+      return filteredEntries
+    }
 
     console.log(`Found ${data.length} entries for date: ${dateString}`)
     return data
   } catch (error) {
-    console.error("Error getting entries by date:", error)
-    // Fallback vers le cache local
+    console.log("Error fetching entries, using local cache:", error)
     const cachedEntries = getCachedEntries()
     const filteredEntries = cachedEntries.filter((entry) => {
       const entryDate = new Date(entry.date)
       return entryDate.toDateString() === date.toDateString()
     })
-    console.log(`Found ${filteredEntries.length} entries for date: ${date.toISOString().split("T")[0]} in local cache`)
     return filteredEntries
   }
 }
@@ -410,27 +323,31 @@ export const loadDraft = (key: string) => {
 // Fonction pour synchroniser les entrées locales avec Supabase
 export const syncLocalEntriesToSupabase = async () => {
   try {
+    // Vérifier si la table existe
+    const tableExists = await checkTableExists()
+
+    // Si la table n'existe pas, on ne peut pas synchroniser
+    if (!tableExists) {
+      console.log("Table does not exist, cannot sync")
+      return
+    }
+
     const supabase = getSupabase()
     const localEntries = getCachedEntries()
     if (localEntries.length === 0) return
-
-    // Vérifier si la table existe
-    const tableCheck = await createTableIfNotExists()
-
-    // Si la table n'existe pas, on ne peut pas synchroniser
-    if (!tableCheck.success) {
-      throw new Error(tableCheck.message)
-    }
 
     console.log(`Syncing ${localEntries.length} local entries to Supabase`)
 
     // Utiliser upsert pour ajouter ou mettre à jour les entrées
     const { error } = await supabase.from("journal_entries").upsert(localEntries)
 
-    if (error) throw error
+    if (error) {
+      console.log("Error syncing to Supabase:", error.message)
+      return
+    }
 
     console.log("Local entries successfully synced to Supabase")
   } catch (error) {
-    console.error("Error syncing local entries to Supabase:", error)
+    console.log("Error syncing entries:", error)
   }
 }

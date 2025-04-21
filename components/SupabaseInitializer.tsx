@@ -1,44 +1,39 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { createTableIfNotExists, getAllEntries } from "@/lib/storage"
+import { checkTableExists, getAllEntries } from "@/lib/storage"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function SupabaseInitializer() {
   const { toast } = useToast()
-  const [status, setStatus] = useState<"loading" | "success" | "error">("loading")
+  const [status, setStatus] = useState<"loading" | "success" | "offline">("loading")
   const [message, setMessage] = useState("")
 
   useEffect(() => {
-    // Initialiser Supabase et créer la table si nécessaire
+    // Initialiser Supabase et vérifier si la table existe
     const initSupabase = async () => {
       try {
         setStatus("loading")
-        // Créer la table si elle n'existe pas
-        const result = await createTableIfNotExists()
+        // Vérifier si la table existe
+        const tableExists = await checkTableExists()
 
-        if (result.success) {
+        if (tableExists) {
           setStatus("success")
-          setMessage(result.message)
-          console.log("Supabase initialized successfully:", result.message)
+          setMessage("Connexion à Supabase établie avec succès.")
+          console.log("Supabase table exists, loading entries")
 
           // Charger les entrées
           await getAllEntries()
         } else {
-          setStatus("error")
-          setMessage(result.message)
-          console.warn("Supabase initialization failed:", result.message)
-          toast({
-            title: "Mode hors ligne",
-            description: result.message,
-            duration: 10000,
-          })
+          setStatus("offline")
+          setMessage("Mode hors ligne : vos données sont stockées localement.")
+          console.log("Supabase table does not exist, using local storage only")
         }
       } catch (error) {
-        setStatus("error")
-        setMessage(error instanceof Error ? error.message : "Une erreur inconnue s'est produite")
-        console.error("Error initializing Supabase:", error)
+        setStatus("offline")
+        setMessage("Mode hors ligne : vos données sont stockées localement.")
+        console.log("Error connecting to Supabase, using local storage only:", error)
       }
     }
 
@@ -48,14 +43,14 @@ export default function SupabaseInitializer() {
   if (status === "loading") {
     return (
       <Alert className="fixed bottom-4 right-4 w-80 bg-blue-50 border-blue-200 text-blue-800 z-50">
-        <AlertDescription>Initialisation de la base de données...</AlertDescription>
+        <AlertDescription>Initialisation de l'application...</AlertDescription>
       </Alert>
     )
   }
 
-  if (status === "error") {
+  if (status === "offline") {
     return (
-      <Alert className="fixed bottom-4 right-4 w-80 bg-red-50 border-red-200 text-red-800 z-50">
+      <Alert className="fixed bottom-4 right-4 w-80 bg-orange-50 border-orange-200 text-orange-800 z-50">
         <AlertDescription>{message}</AlertDescription>
       </Alert>
     )

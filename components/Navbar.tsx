@@ -35,6 +35,12 @@ export default function Navbar() {
               Paramètres
             </Button>
           </Link>
+          <Link href="/diagnostic">
+            <Button variant="ghost" className="text-black hover:text-orange-400">
+              <span className="mr-2">🔧</span>
+              Diagnostic
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>

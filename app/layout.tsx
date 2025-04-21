@@ -1,9 +1,8 @@
-import "@/styles/globals.css"
+import "@/app/globals.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
 import type React from "react"
-// Ajouter l'import pour SupabaseInitializer
 import SupabaseInitializer from "@/components/SupabaseInitializer"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -21,8 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={`${inter.className} bg-white`}>
-        {/* Ajouter le composant SupabaseInitializer dans le body, juste avant le Toaster */}
+      <body className={`${inter.className} bg-[#f5f5f0]`}>
         <SupabaseInitializer />
         {children}
         <Toaster />

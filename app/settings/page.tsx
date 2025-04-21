@@ -18,7 +18,7 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[#f5f5f0]">
       <AnimatedBackground />
       <Navbar />
       <div className="container mx-auto p-4">

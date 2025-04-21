@@ -4,7 +4,7 @@ import AnimatedBackground from "@/components/AnimatedBackground"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[#f5f5f0]">
       <AnimatedBackground />
       <Navbar />
       <div className="container mx-auto p-4 md:p-8">
