@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
-import { validateAccessCode } from "@/lib/storage"
+import { validateAccessCode, getAllEntries } from "@/lib/storage"
 
 interface AccessCodeLoginProps {
   onSuccess: () => void
@@ -30,16 +30,16 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
     setIsLoading(true)
 
     try {
-      // Valider le code d'accès
+      // Valider le code d'accès et charger les données
       const isValid = await validateAccessCode(accessCode)
 
       if (isValid) {
-        // Sauvegarder le code d'accès
-        setAccessCode(accessCode)
+        // Forcer le chargement des entrées pour s'assurer que tout est synchronisé
+        await getAllEntries()
 
         toast({
           title: "Connexion réussie",
-          description: "Vous êtes maintenant connecté à votre journal.",
+          description: "Vos données ont été chargées avec succès.",
           className: "bg-green-100 border-green-400 text-green-800",
         })
 
@@ -47,7 +47,7 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
       } else {
         toast({
           title: "Code d'accès invalide",
-          description: "Le code d'accès que vous avez entré n'est pas valide.",
+          description: "Le code d'accès que vous avez entré n'est pas valide ou n'a pas d'entrées associées.",
           variant: "destructive",
         })
       }
@@ -89,7 +89,7 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
           disabled={isLoading}
           className="w-full bg-orange-300 hover:bg-orange-400 text-black"
         >
-          {isLoading ? "Vérification..." : "Se connecter"}
+          {isLoading ? "Chargement des données..." : "Se connecter"}
         </Button>
       </CardFooter>
     </Card>

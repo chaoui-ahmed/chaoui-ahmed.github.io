@@ -7,13 +7,14 @@ import { useToast } from "@/components/ui/use-toast"
 import Navbar from "@/components/Navbar"
 import AnimatedBackground from "@/components/AnimatedBackground"
 import { getAllEntries, syncLocalEntriesToBlob, getAccessCode } from "@/lib/storage"
-import { CloudIcon as CloudSync, Check, AlertTriangle } from "lucide-react"
+import { CloudIcon as CloudSync, Check, AlertTriangle, RefreshCw } from "lucide-react"
 
 export default function Sync() {
   const [isSyncing, setIsSyncing] = useState(false)
   const [lastSyncDate, setLastSyncDate] = useState<Date | null>(null)
   const [entriesCount, setEntriesCount] = useState(0)
   const [hasAccessCode, setHasAccessCode] = useState(false)
+  const [syncStatus, setSyncStatus] = useState<"synced" | "pending" | "error">("pending")
   const { toast } = useToast()
 
   useEffect(() => {
@@ -25,6 +26,19 @@ export default function Sync() {
     const lastSync = localStorage.getItem("last_sync_date")
     if (lastSync) {
       setLastSyncDate(new Date(lastSync))
+
+      // Vérifier si la dernière synchronisation date de moins de 1 heure
+      const now = new Date()
+      const lastSyncTime = new Date(lastSync).getTime()
+      const oneHour = 60 * 60 * 1000
+
+      if (now.getTime() - lastSyncTime < oneHour) {
+        setSyncStatus("synced")
+      } else {
+        setSyncStatus("pending")
+      }
+    } else {
+      setSyncStatus("pending")
     }
 
     // Récupérer le nombre d'entrées
@@ -46,21 +60,29 @@ export default function Sync() {
     }
 
     setIsSyncing(true)
+    setSyncStatus("pending")
+
     try {
-      await syncLocalEntriesToBlob()
+      const syncedCount = await syncLocalEntriesToBlob()
 
       // Mettre à jour la date de dernière synchronisation
       const now = new Date()
       localStorage.setItem("last_sync_date", now.toISOString())
       setLastSyncDate(now)
+      setSyncStatus("synced")
+
+      // Mettre à jour le nombre d'entrées
+      const entries = await getAllEntries()
+      setEntriesCount(entries.length)
 
       toast({
         title: "Synchronisation réussie",
-        description: "Vos entrées ont été synchronisées avec succès.",
+        description: `${syncedCount} entrées ont été synchronisées avec succès.`,
         className: "bg-green-100 border-green-400 text-green-800",
       })
     } catch (error) {
       console.error("Error syncing entries:", error)
+      setSyncStatus("error")
       toast({
         title: "Erreur de synchronisation",
         description: `Une erreur est survenue lors de la synchronisation: ${error instanceof Error ? error.message : String(error)}`,
@@ -107,6 +129,27 @@ export default function Sync() {
                 <span className="text-black">Dernière synchronisation:</span>
                 <span className="text-black">{lastSyncDate ? lastSyncDate.toLocaleString() : "Jamais"}</span>
               </div>
+              <div className="flex items-center justify-between">
+                <span className="text-black">État de synchronisation:</span>
+                <span className="flex items-center">
+                  {syncStatus === "synced" ? (
+                    <>
+                      <Check className="h-5 w-5 text-green-500 mr-1" />
+                      <span className="text-green-600">Synchronisé</span>
+                    </>
+                  ) : syncStatus === "pending" ? (
+                    <>
+                      <RefreshCw className="h-5 w-5 text-amber-500 mr-1" />
+                      <span className="text-amber-600">Synchronisation nécessaire</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-5 w-5 text-red-500 mr-1" />
+                      <span className="text-red-600">Erreur de synchronisation</span>
+                    </>
+                  )}
+                </span>
+              </div>
               <Button
                 onClick={handleSync}
                 disabled={isSyncing || !hasAccessCode}
@@ -136,6 +179,14 @@ export default function Sync() {
                   n'importe quel appareil. Pour synchroniser vos données entre plusieurs appareils, utilisez le même
                   code d'accès sur chaque appareil.
                 </p>
+                <div className="mt-4 text-sm text-gray-600">
+                  <h4 className="font-medium">Pour utiliser vos données sur un autre appareil:</h4>
+                  <ol className="list-decimal pl-5 mt-2 space-y-1">
+                    <li>Utilisez le même code d'accès sur tous vos appareils</li>
+                    <li>Synchronisez régulièrement pour avoir les données à jour</li>
+                    <li>Vos entrées seront automatiquement fusionnées entre les appareils</li>
+                  </ol>
+                </div>
               </div>
             </div>
           </CardContent>

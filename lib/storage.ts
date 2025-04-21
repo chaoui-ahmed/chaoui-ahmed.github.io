@@ -38,13 +38,46 @@ export const setAccessCode = (code: string): void => {
 export const validateAccessCode = async (code: string): Promise<boolean> => {
   try {
     // Vérifier si le code existe dans Blob Storage
-    // Pour simplifier, nous allons juste vérifier si des entrées existent avec ce code
     const entries = await getAllEntriesFromBlob(code)
-    return entries.length > 0
+
+    if (entries.length > 0) {
+      // Si des entrées existent avec ce code, on le sauvegarde et on charge les entrées
+      setAccessCode(code)
+
+      // Fusionner avec les entrées locales existantes
+      const localEntries = getCachedEntries()
+      const mergedEntries = mergeEntries(localEntries, entries)
+
+      // Mettre à jour le cache local
+      cacheEntries(mergedEntries)
+
+      return true
+    }
+
+    return false
   } catch (error) {
     console.error("Error validating access code:", error)
     return false
   }
+}
+
+// Fonction pour fusionner les entrées locales et distantes
+const mergeEntries = (localEntries: JournalEntry[], remoteEntries: JournalEntry[]): JournalEntry[] => {
+  // Créer une map des entrées par ID pour faciliter la fusion
+  const entriesMap = new Map<string, JournalEntry>()
+
+  // Ajouter d'abord les entrées locales
+  localEntries.forEach((entry) => {
+    entriesMap.set(entry.id, entry)
+  })
+
+  // Ajouter ou remplacer par les entrées distantes (priorité aux entrées distantes)
+  remoteEntries.forEach((entry) => {
+    entriesMap.set(entry.id, entry)
+  })
+
+  // Convertir la map en tableau
+  return Array.from(entriesMap.values())
 }
 
 // Fonction pour sauvegarder une entrée
@@ -217,7 +250,7 @@ export const loadDraft = (key: string) => {
   }
 }
 
-// Fonction pour synchroniser les entrées locales avec Blob Storage
+// Fonction pour synchroniser les entrées entre le local et Blob Storage
 export const syncLocalEntriesToBlob = async () => {
   try {
     // Récupérer le code d'accès
@@ -227,18 +260,32 @@ export const syncLocalEntriesToBlob = async () => {
       return
     }
 
+    // 1. Récupérer les entrées locales
     const localEntries = getCachedEntries()
-    if (localEntries.length === 0) return
 
-    console.log(`Syncing ${localEntries.length} local entries to Blob Storage`)
+    // 2. Récupérer les entrées distantes
+    const remoteEntries = await getAllEntriesFromBlob(accessCode)
 
-    // Sauvegarder chaque entrée dans Blob Storage avec le code d'accès
-    const savePromises = localEntries.map((entry) => saveEntryToBlob(entry, accessCode))
+    // 3. Fusionner les entrées
+    const mergedEntries = mergeEntries(localEntries, remoteEntries)
+
+    // 4. Mettre à jour le cache local
+    cacheEntries(mergedEntries)
+
+    // 5. Sauvegarder toutes les entrées fusionnées dans Blob Storage
+    const savePromises = mergedEntries.map((entry) => saveEntryToBlob(entry, accessCode))
     await Promise.all(savePromises)
 
-    console.log("Local entries successfully synced to Blob Storage")
+    // 6. Enregistrer la date de synchronisation
+    if (typeof window !== "undefined") {
+      localStorage.setItem("last_sync_date", new Date().toISOString())
+    }
+
+    console.log(`Synchronized ${mergedEntries.length} entries between local and Blob Storage`)
+    return mergedEntries.length
   } catch (error) {
-    console.error("Error syncing entries to Blob Storage:", error)
+    console.error("Error syncing entries:", error)
+    throw error
   }
 }
 

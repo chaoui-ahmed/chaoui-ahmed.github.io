@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Camera, Save, Hash, X, Upload } from "lucide-react"
+import { Camera, Save, Hash, X, Upload, RefreshCw } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -27,12 +27,26 @@ export default function JournalEntryComponent() {
   const [isUploading, setIsUploading] = useState(false)
   const [photos, setPhotos] = useState<string[]>([])
   const [previewPhotos, setPreviewPhotos] = useState<string[]>([])
+  const [isInitialSync, setIsInitialSync] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     const loadData = async () => {
       try {
+        // Synchroniser d'abord les données
+        if (isInitialSync) {
+          setIsSyncing(true)
+          try {
+            await syncLocalEntriesToBlob()
+          } catch (error) {
+            console.error("Error during initial sync:", error)
+          } finally {
+            setIsSyncing(false)
+            setIsInitialSync(false)
+          }
+        }
+
         const entries = await getAllEntries()
         const today = new Date().toDateString()
 
@@ -43,7 +57,7 @@ export default function JournalEntryComponent() {
         // Calculer le streak et les jours sans entrée
         if (entries.length > 0) {
           const dates = entries.map((entry) => new Date(entry.date))
-          const lastEntryDate = new Date(Math.max(...dates))
+          const lastEntryDate = new Date(Math.max(...dates.map((d) => d.getTime())))
           const daysSince = Math.floor((new Date().getTime() - lastEntryDate.getTime()) / (1000 * 3600 * 24))
           setDaysSinceLastEntry(daysSince)
 
@@ -76,9 +90,6 @@ export default function JournalEntryComponent() {
           setPhotos(savedPhotos)
           setPreviewPhotos(savedPhotos)
         }
-
-        // Synchroniser les entrées locales avec Blob Storage au chargement
-        syncLocalEntriesToBlob()
       } catch (error) {
         console.error("Error loading entries:", error)
         toast({
@@ -90,7 +101,7 @@ export default function JournalEntryComponent() {
     }
 
     loadData()
-  }, [toast])
+  }, [toast, isInitialSync])
 
   // Sauvegarder le brouillon automatiquement
   useEffect(() => {
@@ -155,6 +166,9 @@ export default function JournalEntryComponent() {
       setPhotos([])
       setPreviewPhotos([])
       setHasEntryToday(true)
+
+      // Synchroniser après la sauvegarde
+      handleSync()
     } catch (error) {
       console.error("Error saving entry:", error)
       toast({
@@ -268,6 +282,14 @@ export default function JournalEntryComponent() {
         </div>
       </CardHeader>
       <CardContent>
+        {isInitialSync && (
+          <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
+            <AlertDescription className="flex items-center">
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              Synchronisation des données en cours...
+            </AlertDescription>
+          </Alert>
+        )}
         {hasEntryToday && (
           <Alert className="mb-4 bg-orange-50 text-orange-800 border-orange-200">
             <AlertDescription>Vous avez déjà créé un pixel aujourd'hui. Vous pouvez le modifier.</AlertDescription>
@@ -379,7 +401,17 @@ export default function JournalEntryComponent() {
           Sauvegarder le Pixel
         </Button>
         <Button onClick={handleSync} disabled={isSyncing} className="bg-purple-300 hover:bg-purple-400 text-black">
-          {isSyncing ? "Synchronisation..." : "Synchroniser"}
+          {isSyncing ? (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              Synchronisation...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Synchroniser
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>
