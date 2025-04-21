@@ -8,11 +8,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Camera, Save, Hash, X, Upload, RefreshCw } from "lucide-react"
+import { Camera, Save, Hash, X, Upload } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { saveEntry, getAllEntries, saveDraft, loadDraft, uploadPhoto, syncLocalEntriesToBlob } from "@/lib/storage"
+import { saveEntry, getAllEntries, saveDraft, loadDraft, uploadPhoto } from "@/lib/storage"
 import type { JournalEntry } from "@/types/JournalEntry"
 import Image from "next/image"
 
@@ -23,30 +23,17 @@ export default function JournalEntryComponent() {
   const [hasEntryToday, setHasEntryToday] = useState(false)
   const [streak, setStreak] = useState(0)
   const [daysSinceLastEntry, setDaysSinceLastEntry] = useState(0)
-  const [isSyncing, setIsSyncing] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const [photos, setPhotos] = useState<string[]>([])
   const [previewPhotos, setPreviewPhotos] = useState<string[]>([])
-  const [isInitialSync, setIsInitialSync] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Synchroniser d'abord les données
-        if (isInitialSync) {
-          setIsSyncing(true)
-          try {
-            await syncLocalEntriesToBlob()
-          } catch (error) {
-            console.error("Error during initial sync:", error)
-          } finally {
-            setIsSyncing(false)
-            setIsInitialSync(false)
-          }
-        }
-
+        setIsLoading(true)
         const entries = await getAllEntries()
         const today = new Date().toDateString()
 
@@ -97,11 +84,13 @@ export default function JournalEntryComponent() {
           description: `Failed to load entries: ${error instanceof Error ? error.message : String(error)}`,
           variant: "destructive",
         })
+      } finally {
+        setIsLoading(false)
       }
     }
 
     loadData()
-  }, [toast, isInitialSync])
+  }, [toast])
 
   // Sauvegarder le brouillon automatiquement
   useEffect(() => {
@@ -113,16 +102,11 @@ export default function JournalEntryComponent() {
         saveDraft("photos", photos)
       } catch (error) {
         console.error("Error saving draft:", error)
-        toast({
-          title: "Error",
-          description: "Failed to save draft. Your changes may not be preserved.",
-          variant: "destructive",
-        })
       }
     }
 
     saveDraftData()
-  }, [content, mood, hashtags, photos, toast])
+  }, [content, mood, hashtags, photos])
 
   const handleMoodChange = (value: string) => {
     setMood(value)
@@ -166,9 +150,6 @@ export default function JournalEntryComponent() {
       setPhotos([])
       setPreviewPhotos([])
       setHasEntryToday(true)
-
-      // Synchroniser après la sauvegarde
-      handleSync()
     } catch (error) {
       console.error("Error saving entry:", error)
       toast({
@@ -176,27 +157,6 @@ export default function JournalEntryComponent() {
         description: `Failed to save entry: ${error instanceof Error ? error.message : String(error)}`,
         variant: "destructive",
       })
-    }
-  }
-
-  const handleSync = async () => {
-    setIsSyncing(true)
-    try {
-      await syncLocalEntriesToBlob()
-      toast({
-        title: "Synchronisation réussie",
-        description: "Vos entrées ont été synchronisées avec Blob Storage.",
-        className: "bg-green-100 border-green-400 text-green-800",
-      })
-    } catch (error) {
-      console.error("Error syncing entries:", error)
-      toast({
-        title: "Error",
-        description: `Failed to sync entries: ${error instanceof Error ? error.message : String(error)}`,
-        variant: "destructive",
-      })
-    } finally {
-      setIsSyncing(false)
     }
   }
 
@@ -273,36 +233,33 @@ export default function JournalEntryComponent() {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-md border border-black bg-white/80 backdrop-blur-sm">
+    <Card className="w-full max-w-3xl mx-auto shadow-md border border-black bg-white/80 backdrop-blur-sm dark:bg-gray-800/80 dark:border-gray-700">
       <CardHeader>
-        <CardTitle className="text-2xl text-orange-400">Nouveau Pixel</CardTitle>
-        <div className="flex justify-between text-sm text-black">
+        <CardTitle className="text-2xl text-orange-400 dark:text-orange-300">Nouveau Pixel</CardTitle>
+        <div className="flex justify-between text-sm text-black dark:text-white">
           <span>Série actuelle : {streak} jours</span>
           <span>Jours sans pixel : {daysSinceLastEntry}</span>
         </div>
       </CardHeader>
       <CardContent>
-        {isInitialSync && (
-          <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
-            <AlertDescription className="flex items-center">
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Synchronisation des données en cours...
-            </AlertDescription>
+        {isLoading && (
+          <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800">
+            <AlertDescription>Chargement des données...</AlertDescription>
           </Alert>
         )}
         {hasEntryToday && (
-          <Alert className="mb-4 bg-orange-50 text-orange-800 border-orange-200">
+          <Alert className="mb-4 bg-orange-50 text-orange-800 border-orange-200 dark:bg-orange-900/50 dark:text-orange-200 dark:border-orange-800">
             <AlertDescription>Vous avez déjà créé un pixel aujourd'hui. Vous pouvez le modifier.</AlertDescription>
           </Alert>
         )}
         <Textarea
           placeholder="Capturez votre journée ici..."
-          className="min-h-[200px] mb-4 border-black focus:border-orange-300 bg-white/90"
+          className="min-h-[200px] mb-4 border-black focus:border-orange-300 bg-white/90 dark:bg-gray-700/90 dark:border-gray-600 dark:text-white"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
         <div className="mb-4">
-          <Label className="text-black">Comment vous sentez-vous aujourd'hui ?</Label>
+          <Label className="text-black dark:text-white">Comment vous sentez-vous aujourd'hui ?</Label>
           <RadioGroup
             defaultValue="neutre"
             value={mood}
@@ -310,31 +267,33 @@ export default function JournalEntryComponent() {
             className="flex flex-wrap gap-2 mt-2"
           >
             {[
-              { value: "parfait", color: "bg-purple-200", label: "Parfait" },
-              { value: "bien", color: "bg-blue-200", label: "Bien" },
-              { value: "ca_va", color: "bg-green-200", label: "Ça va" },
-              { value: "bof", color: "bg-yellow-200", label: "Bof" },
-              { value: "pas_ouf", color: "bg-red-200", label: "Pas ouf" },
+              { value: "parfait", color: "bg-purple-200 dark:bg-purple-700", label: "Parfait" },
+              { value: "bien", color: "bg-blue-200 dark:bg-blue-700", label: "Bien" },
+              { value: "ca_va", color: "bg-green-200 dark:bg-green-700", label: "Ça va" },
+              { value: "bof", color: "bg-yellow-200 dark:bg-yellow-700", label: "Bof" },
+              { value: "pas_ouf", color: "bg-red-200 dark:bg-red-700", label: "Pas ouf" },
             ].map((item) => (
               <div key={item.value} className="flex items-center space-x-2">
                 <RadioGroupItem value={item.value} id={item.value} className={item.color} />
-                <Label htmlFor={item.value}>{item.label}</Label>
+                <Label htmlFor={item.value} className="dark:text-white">
+                  {item.label}
+                </Label>
               </div>
             ))}
           </RadioGroup>
         </div>
         <div className="mb-4">
-          <Label htmlFor="hashtags" className="text-black">
+          <Label htmlFor="hashtags" className="text-black dark:text-white">
             Hashtags
           </Label>
           <div className="flex items-center mt-2">
-            <Hash className="mr-2 h-4 w-4 text-orange-400" />
+            <Hash className="mr-2 h-4 w-4 text-orange-400 dark:text-orange-300" />
             <Input
               id="hashtags"
               placeholder="Ajoutez des hashtags... (séparés par des espaces)"
               value={hashtags}
               onChange={(e) => setHashtags(e.target.value)}
-              className="border-black focus:border-orange-300 bg-white/90"
+              className="border-black focus:border-orange-300 bg-white/90 dark:bg-gray-700/90 dark:border-gray-600 dark:text-white"
             />
           </div>
         </div>
@@ -342,7 +301,7 @@ export default function JournalEntryComponent() {
         {/* Prévisualisation des photos */}
         {previewPhotos.length > 0 && (
           <div className="mb-4">
-            <Label className="text-black mb-2 block">Photos ({previewPhotos.length}/5)</Label>
+            <Label className="text-black mb-2 block dark:text-white">Photos ({previewPhotos.length}/5)</Label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {previewPhotos.map((photoUrl, index) => (
                 <div key={index} className="relative h-24 rounded-md overflow-hidden">
@@ -380,7 +339,7 @@ export default function JournalEntryComponent() {
       <CardFooter className="flex flex-wrap justify-between gap-2">
         <Button
           variant="outline"
-          className="border-black text-black hover:bg-orange-50 hover:text-orange-400"
+          className="border-black text-black hover:bg-orange-50 hover:text-orange-400 dark:border-gray-600 dark:text-white dark:hover:bg-orange-900/20"
           onClick={handlePhotoClick}
           disabled={isUploading || photos.length >= 5}
         >
@@ -396,22 +355,12 @@ export default function JournalEntryComponent() {
             </>
           )}
         </Button>
-        <Button onClick={handleSave} className="bg-orange-300 hover:bg-orange-400 text-black">
+        <Button
+          onClick={handleSave}
+          className="bg-orange-300 hover:bg-orange-400 text-black dark:bg-orange-600 dark:hover:bg-orange-700 dark:text-white"
+        >
           <Save className="mr-2 h-4 w-4" />
           Sauvegarder le Pixel
-        </Button>
-        <Button onClick={handleSync} disabled={isSyncing} className="bg-purple-300 hover:bg-purple-400 text-black">
-          {isSyncing ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-              Synchronisation...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Synchroniser
-            </>
-          )}
         </Button>
       </CardFooter>
     </Card>

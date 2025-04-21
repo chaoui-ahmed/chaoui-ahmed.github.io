@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
-import { validateAccessCode, getAllEntries } from "@/lib/storage"
+import { validateAccessCode } from "@/lib/storage"
 
 interface AccessCodeLoginProps {
   onSuccess: () => void
@@ -30,13 +30,10 @@ export default function AccessCodeLogin({ onSuccess }: AccessCodeLoginProps) {
     setIsLoading(true)
 
     try {
-      // Valider le code d'accès et charger les données
+      // Valider le code d'accès
       const isValid = await validateAccessCode(accessCode)
 
       if (isValid) {
-        // Forcer le chargement des entrées pour s'assurer que tout est synchronisé
-        await getAllEntries()
-
         toast({
           title: "Connexion réussie",
           description: "Vos données ont été chargées avec succès.",
