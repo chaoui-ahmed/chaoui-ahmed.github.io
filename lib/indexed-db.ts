@@ -109,9 +109,7 @@ export const getAllEntries = async (): Promise<JournalEntry[]> => {
       const request = store.getAll()
 
       request.onsuccess = () => {
-        // Trier par date (plus récentes en premier)
-        const entries = request.result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        resolve(entries)
+        resolve(request.result)
       }
 
       request.onerror = (event) => {
@@ -242,7 +240,7 @@ export const loadDraft = async (key: string): Promise<any> => {
   }
 }
 
-// Fonction pour télécharger une photo (stocke en base64)
+// Fonction pour télécharger une photo (stocke juste l'URL en base64)
 export const uploadPhoto = async (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -306,62 +304,5 @@ export const importData = async (jsonData: string): Promise<void> => {
   } catch (error) {
     console.error("Error importing data:", error)
     throw error
-  }
-}
-
-// Fonctions stub pour compatibilité avec le code existant
-export const syncLocalEntriesToBlob = async (): Promise<number> => {
-  const entries = await getAllEntries()
-  return entries.length
-}
-
-export const getAllEntriesFromBlob = async (): Promise<JournalEntry[]> => {
-  return await getAllEntries()
-}
-
-// Fonction pour sauvegarder un paramètre
-export const saveSetting = async (key: string, value: any): Promise<void> => {
-  try {
-    const db = await initDB()
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(SETTINGS_STORE, "readwrite")
-      const store = transaction.objectStore(SETTINGS_STORE)
-      const request = store.put({ key, value })
-
-      request.onsuccess = () => {
-        resolve()
-      }
-
-      request.onerror = (event) => {
-        console.error("Error saving setting:", event)
-        reject("Error saving setting")
-      }
-    })
-  } catch (error) {
-    console.error("Error in saveSetting:", error)
-  }
-}
-
-// Fonction pour récupérer un paramètre
-export const getSetting = async (key: string): Promise<any> => {
-  try {
-    const db = await initDB()
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(SETTINGS_STORE, "readonly")
-      const store = transaction.objectStore(SETTINGS_STORE)
-      const request = store.get(key)
-
-      request.onsuccess = () => {
-        resolve(request.result ? request.result.value : null)
-      }
-
-      request.onerror = (event) => {
-        console.error("Error getting setting:", event)
-        reject("Error getting setting")
-      }
-    })
-  } catch (error) {
-    console.error("Error in getSetting:", error)
-    return null
   }
 }

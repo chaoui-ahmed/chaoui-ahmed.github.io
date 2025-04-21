@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CalendarDays, Settings, TrendingUp, Database, Home, Bug } from "lucide-react"
+import { CalendarDays, Settings, TrendingUp, Download, PenTool } from "lucide-react"
 import Image from "next/image"
 
 export default function Navbar() {
@@ -22,8 +22,8 @@ export default function Navbar() {
               variant="ghost"
               className="text-black hover:text-orange-400 dark:text-white dark:hover:text-orange-300"
             >
-              <Home className="mr-2 h-4 w-4" />
-              Accueil
+              <PenTool className="mr-2 h-4 w-4" />
+              Nouveau Pixel
             </Button>
           </Link>
           <Link href="/entries">
@@ -53,22 +53,13 @@ export default function Navbar() {
               Paramètres
             </Button>
           </Link>
-          <Link href="/blob-info">
+          <Link href="/export-import">
             <Button
               variant="ghost"
               className="text-black hover:text-orange-400 dark:text-white dark:hover:text-orange-300"
             >
-              <Database className="mr-2 h-4 w-4" />
-              Données
-            </Button>
-          </Link>
-          <Link href="/debug">
-            <Button
-              variant="ghost"
-              className="text-black hover:text-orange-400 dark:text-white dark:hover:text-orange-300"
-            >
-              <Bug className="mr-2 h-4 w-4" />
-              Debug
+              <Download className="mr-2 h-4 w-4" />
+              Exporter/Importer
             </Button>
           </Link>
         </div>

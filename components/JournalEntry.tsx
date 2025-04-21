@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Camera, Save, Hash, X, Upload } from "lucide-react"
+import { Camera, Save, Hash, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -65,10 +65,10 @@ export default function JournalEntryComponent() {
         }
 
         // Charger le brouillon en cours
-        const savedContent = loadDraft("content")
-        const savedMood = loadDraft("mood")
-        const savedHashtags = loadDraft("hashtags")
-        const savedPhotos = loadDraft("photos")
+        const savedContent = await loadDraft("content")
+        const savedMood = await loadDraft("mood")
+        const savedHashtags = await loadDraft("hashtags")
+        const savedPhotos = await loadDraft("photos")
 
         if (savedContent) setContent(savedContent)
         if (savedMood) setMood(savedMood)
@@ -94,12 +94,12 @@ export default function JournalEntryComponent() {
 
   // Sauvegarder le brouillon automatiquement
   useEffect(() => {
-    const saveDraftData = () => {
+    const saveDraftData = async () => {
       try {
-        saveDraft("content", content)
-        saveDraft("mood", mood)
-        saveDraft("hashtags", hashtags)
-        saveDraft("photos", photos)
+        await saveDraft("content", content)
+        await saveDraft("mood", mood)
+        await saveDraft("hashtags", hashtags)
+        await saveDraft("photos", photos)
       } catch (error) {
         console.error("Error saving draft:", error)
       }
@@ -133,10 +133,10 @@ export default function JournalEntryComponent() {
       await saveEntry(entry)
 
       // Effacer le brouillon
-      saveDraft("content", "")
-      saveDraft("mood", "neutre")
-      saveDraft("hashtags", "")
-      saveDraft("photos", [])
+      await saveDraft("content", "")
+      await saveDraft("mood", "neutre")
+      await saveDraft("hashtags", "")
+      await saveDraft("photos", [])
 
       toast({
         title: "Entrée sauvegardée",
@@ -183,9 +183,6 @@ export default function JournalEntryComponent() {
     setIsUploading(true)
 
     try {
-      // Créer un ID temporaire pour l'entrée si elle n'existe pas encore
-      const tempEntryId = Date.now().toString()
-
       // Télécharger chaque fichier
       const newPhotos: string[] = []
       const newPreviewPhotos: string[] = []
@@ -198,7 +195,7 @@ export default function JournalEntryComponent() {
         newPreviewPhotos.push(previewUrl)
 
         // Télécharger la photo
-        const photoUrl = await uploadPhoto(file, tempEntryId)
+        const photoUrl = await uploadPhoto(file)
         newPhotos.push(photoUrl)
       }
 
@@ -345,7 +342,7 @@ export default function JournalEntryComponent() {
         >
           {isUploading ? (
             <>
-              <Upload className="mr-2 h-4 w-4 animate-spin" />
+              <Camera className="mr-2 h-4 w-4 animate-spin" />
               Téléchargement...
             </>
           ) : (
