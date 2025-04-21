@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CalendarDays, Settings, TrendingUp } from "lucide-react"
+import { CalendarDays, Settings, TrendingUp, CloudIcon as CloudSync } from "lucide-react"
 import Image from "next/image"
 
 export default function Navbar() {
@@ -35,10 +35,10 @@ export default function Navbar() {
               Paramètres
             </Button>
           </Link>
-          <Link href="/diagnostic">
+          <Link href="/sync">
             <Button variant="ghost" className="text-black hover:text-orange-400">
-              <span className="mr-2">🔧</span>
-              Diagnostic
+              <CloudSync className="mr-2 h-4 w-4" />
+              Synchronisation
             </Button>
           </Link>
         </div>

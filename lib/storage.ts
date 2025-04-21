@@ -1,7 +1,14 @@
 import type { JournalEntry } from "@/types/JournalEntry"
-import { saveEntryToBlob, getAllEntriesFromBlob, uploadPhotoToBlob } from "@/lib/blob-storage"
+import {
+  saveEntryToBlob,
+  getAllEntriesFromBlob,
+  deleteEntryFromBlob,
+  uploadPhotoToBlob,
+  deletePhotoFromBlob,
+} from "@/lib/blob-storage"
 
 const CACHE_KEY = "journal_entries_cache"
+const ACCESS_CODE_KEY = "journal_access_code"
 
 // Fonctions de cache local
 const cacheEntries = (entries: JournalEntry[]) => {
@@ -16,9 +23,39 @@ const getCachedEntries = (): JournalEntry[] => {
   return cached ? JSON.parse(cached) : []
 }
 
+// Fonctions pour le code d'accès
+export const getAccessCode = (): string | null => {
+  if (typeof window === "undefined") return null
+  return localStorage.getItem(ACCESS_CODE_KEY)
+}
+
+export const setAccessCode = (code: string): void => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(ACCESS_CODE_KEY, code)
+  }
+}
+
+export const validateAccessCode = async (code: string): Promise<boolean> => {
+  try {
+    // Vérifier si le code existe dans Blob Storage
+    // Pour simplifier, nous allons juste vérifier si des entrées existent avec ce code
+    const entries = await getAllEntriesFromBlob(code)
+    return entries.length > 0
+  } catch (error) {
+    console.error("Error validating access code:", error)
+    return false
+  }
+}
+
 // Fonction pour sauvegarder une entrée
 export const saveEntry = async (entry: JournalEntry) => {
   try {
+    // Récupérer le code d'accès
+    const accessCode = getAccessCode()
+    if (!accessCode) {
+      throw new Error("No access code found")
+    }
+
     // Sauvegarder d'abord dans le cache local
     const cachedEntries = getCachedEntries()
     const existingEntryIndex = cachedEntries.findIndex((e) => e.id === entry.id)
@@ -32,8 +69,8 @@ export const saveEntry = async (entry: JournalEntry) => {
     cacheEntries(cachedEntries)
     console.log("Entry saved to local cache")
 
-    // Sauvegarder dans Blob Storage
-    await saveEntryToBlob(entry)
+    // Sauvegarder dans Blob Storage avec le code d'accès
+    await saveEntryToBlob(entry, accessCode)
     console.log("Entry saved to Blob Storage")
   } catch (error) {
     console.error("Error saving entry to Blob Storage:", error)
@@ -44,8 +81,17 @@ export const saveEntry = async (entry: JournalEntry) => {
 // Fonction pour récupérer toutes les entrées
 export const getAllEntries = async (): Promise<JournalEntry[]> => {
   try {
-    // Essayer de récupérer depuis Blob Storage
-    const entries = await getAllEntriesFromBlob()
+    // Récupérer le code d'accès
+    const accessCode = getAccessCode()
+    if (!accessCode) {
+      // Si pas de code d'accès, utiliser le cache local
+      const cachedEntries = getCachedEntries()
+      console.log(`No access code found, using local cache (${cachedEntries.length} entries)`)
+      return cachedEntries
+    }
+
+    // Essayer de récupérer depuis Blob Storage avec le code d'accès
+    const entries = await getAllEntriesFromBlob(accessCode)
     console.log(`Retrieved ${entries.length} entries from Blob Storage`)
 
     // Mettre à jour le cache local
@@ -133,7 +179,13 @@ export const getEntriesByDate = async (date: Date): Promise<JournalEntry[]> => {
 // Fonction pour télécharger une photo
 export const uploadPhoto = async (file: File, entryId: string): Promise<string> => {
   try {
-    const photoUrl = await uploadPhotoToBlob(file, entryId)
+    // Récupérer le code d'accès
+    const accessCode = getAccessCode()
+    if (!accessCode) {
+      throw new Error("No access code found")
+    }
+
+    const photoUrl = await uploadPhotoToBlob(file, entryId, accessCode)
     return photoUrl
   } catch (error) {
     console.error("Error uploading photo:", error)
@@ -168,17 +220,57 @@ export const loadDraft = (key: string) => {
 // Fonction pour synchroniser les entrées locales avec Blob Storage
 export const syncLocalEntriesToBlob = async () => {
   try {
+    // Récupérer le code d'accès
+    const accessCode = getAccessCode()
+    if (!accessCode) {
+      console.log("No access code found, cannot sync")
+      return
+    }
+
     const localEntries = getCachedEntries()
     if (localEntries.length === 0) return
 
     console.log(`Syncing ${localEntries.length} local entries to Blob Storage`)
 
-    // Sauvegarder chaque entrée dans Blob Storage
-    const savePromises = localEntries.map((entry) => saveEntryToBlob(entry))
+    // Sauvegarder chaque entrée dans Blob Storage avec le code d'accès
+    const savePromises = localEntries.map((entry) => saveEntryToBlob(entry, accessCode))
     await Promise.all(savePromises)
 
     console.log("Local entries successfully synced to Blob Storage")
   } catch (error) {
     console.error("Error syncing entries to Blob Storage:", error)
+  }
+}
+
+// Fonction pour supprimer une entrée
+export const deleteEntry = async (entryId: string) => {
+  try {
+    // Récupérer le code d'accès
+    const accessCode = getAccessCode()
+    if (!accessCode) {
+      throw new Error("No access code found")
+    }
+
+    // Supprimer de Blob Storage
+    await deleteEntryFromBlob(entryId, accessCode)
+    console.log("Entry deleted from Blob Storage")
+
+    // Supprimer du cache local
+    const cachedEntries = getCachedEntries()
+    const updatedEntries = cachedEntries.filter((entry) => entry.id !== entryId)
+    cacheEntries(updatedEntries)
+    console.log("Entry deleted from local cache")
+  } catch (error) {
+    console.error("Error deleting entry:", error)
+  }
+}
+
+// Fonction pour supprimer une photo
+export const deletePhoto = async (photoUrl: string) => {
+  try {
+    await deletePhotoFromBlob(photoUrl)
+    console.log("Photo deleted from Blob Storage")
+  } catch (error) {
+    console.error("Error deleting photo:", error)
   }
 }

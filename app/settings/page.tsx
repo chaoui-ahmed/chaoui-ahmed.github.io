@@ -1,20 +1,53 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
+import { useToast } from "@/components/ui/use-toast"
 import Navbar from "@/components/Navbar"
 import AnimatedBackground from "@/components/AnimatedBackground"
+import { getAccessCode, setAccessCode } from "@/lib/storage"
 
 export default function Settings() {
   const [bgColor, setBgColor] = useState("#FFFFFF") // Couleur par défaut
+  const [accessCode, setAccessCodeState] = useState("")
+  const [showAccessCode, setShowAccessCode] = useState(false)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    // Récupérer le code d'accès actuel
+    const currentCode = getAccessCode()
+    if (currentCode) {
+      setAccessCodeState(currentCode)
+    }
+  }, [])
 
   const handleBgColorChange = (color: string) => {
     setBgColor(color)
     document.body.style.backgroundColor = color
+  }
+
+  const handleSaveAccessCode = () => {
+    if (!accessCode.trim()) {
+      toast({
+        title: "Code d'accès requis",
+        description: "Veuillez entrer un code d'accès pour continuer.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Sauvegarder le code d'accès
+    setAccessCode(accessCode)
+
+    toast({
+      title: "Code d'accès sauvegardé",
+      description: "Votre code d'accès a été mis à jour avec succès.",
+      className: "bg-green-100 border-green-400 text-green-800",
+    })
   }
 
   return (
@@ -56,40 +89,40 @@ export default function Settings() {
           </Card>
           <Card className="shadow-md border border-black bg-white/80 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-orange-400">Préférences</CardTitle>
+              <CardTitle className="text-orange-400">Synchronisation</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="language" className="text-black">
-                    Langue
+                  <Label htmlFor="accessCode" className="text-black">
+                    Code d'accès
                   </Label>
-                  <Select defaultValue="fr">
-                    <SelectTrigger className="w-full mt-2 border-black focus:border-orange-300">
-                      <SelectValue placeholder="Sélectionnez une langue" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fr">Français</SelectItem>
-                      <SelectItem value="en">English</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <Input
+                      id="accessCode"
+                      type={showAccessCode ? "text" : "password"}
+                      value={accessCode}
+                      onChange={(e) => setAccessCodeState(e.target.value)}
+                      className="border-black focus:border-orange-300"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAccessCode(!showAccessCode)}
+                      className="border-black"
+                    >
+                      {showAccessCode ? "Masquer" : "Afficher"}
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="notifications" className="text-black">
-                    Notifications
-                  </Label>
-                  <Select defaultValue="daily">
-                    <SelectTrigger className="w-full mt-2 border-black focus:border-orange-300">
-                      <SelectValue placeholder="Fréquence des notifications" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Quotidienne</SelectItem>
-                      <SelectItem value="weekly">Hebdomadaire</SelectItem>
-                      <SelectItem value="none">Aucune</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center space-x-2">
+                <Button onClick={handleSaveAccessCode} className="bg-orange-300 hover:bg-orange-400 text-black">
+                  Sauvegarder le code d'accès
+                </Button>
+                <p className="text-sm text-gray-600">
+                  Ce code vous permet d'accéder à vos entrées de journal depuis n'importe quel appareil. Conservez-le
+                  précieusement et ne le partagez avec personne.
+                </p>
+                <div className="flex items-center space-x-2 pt-4">
                   <Switch id="darkMode" />
                   <Label htmlFor="darkMode" className="text-black">
                     Mode Sombre
