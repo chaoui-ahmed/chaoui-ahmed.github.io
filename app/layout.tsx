@@ -1,16 +1,29 @@
-import type React from "react"
-import "@/app/globals.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { Toaster } from "@/components/ui/toaster"
-import NextAuthProvider from "@/components/session-provider"
-import { ThemeProvider } from "@/components/theme-provider"
+import "./globals.css"
+import type React from "react"
+import { DynamicBackground } from "@/components/dynamic-background"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "✧Camille's Pixels✧",
-  description: "Journal intime personnel de Camille",
+  title: "Ahmed Chaoui",
+  description: "Portfolio d'Ahmed Chaoui - Étudiant en ingénierie",
+  icons: {
+    icon: [
+      {
+        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png",
+        type: "image/png",
+      },
+    ],
+    shortcut: [
+      {
+        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png",
+        type: "image/png",
+      },
+    ],
+    apple: [{ url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png" }],
+  },
     generator: 'v0.dev'
 }
 
@@ -20,14 +33,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" suppressHydrationWarning>
-      <body className={`${inter.className}`}>
-        <NextAuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </NextAuthProvider>
+    <html lang="en">
+      <head>
+        <link
+          rel="icon"
+          type="image/png"
+          href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png"
+        />
+      </head>
+      <body className={`${inter.className} relative min-h-screen`}>
+        <DynamicBackground />
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   )
