@@ -170,7 +170,7 @@ class OthelloGame {
       tempGame.makeMove(move[0], move[1], 2)
       let score = tempGame.board.flat().filter((cell) => cell === 2).length
 
-      // Bonus for corners (like in your Python code)
+      // Bonus pour les coins
       if ((move[0] === 0 || move[0] === 7) && (move[1] === 0 || move[1] === 7)) {
         score += 10
       }
@@ -246,14 +246,14 @@ class OthelloGame {
 
     for (const move of validMoves) {
       let totalScore = 0
-      const simulations = 64
+      const simulations = 50
 
       for (let i = 0; i < simulations; i++) {
         const tempGame = new OthelloGame()
         tempGame.board = this.board.map((row) => [...row])
         tempGame.makeMove(move[0], move[1], 2)
 
-        // Random simulation until game end
+        // Simulation aléatoire jusqu'à la fin
         while (!tempGame.gameOver) {
           const currentMoves = tempGame.getValidMoves(tempGame.currentPlayer)
           if (currentMoves.length === 0) {
@@ -283,13 +283,13 @@ class OthelloGame {
   getHybridMove(validMoves: [number, number][]): [number, number] {
     const totalPieces = this.board.flat().filter((cell) => cell !== 0).length
 
-    // Early game: Minimax with deeper search
+    // Début de partie : Monte Carlo
     if (totalPieces < 20) {
-      return this.getMinimaxMove(validMoves, 5)
-    }
-    // Late game: Monte Carlo
-    else {
       return this.getMonteCarloMove(validMoves)
+    }
+    // Fin de partie : Minimax profond
+    else {
+      return this.getMinimaxMove(validMoves, 4)
     }
   }
 
@@ -319,60 +319,6 @@ class OthelloGame {
     score += (aiMoves - humanMoves) * 2
 
     return score
-  }
-}
-
-const difficulties = [
-  {
-    id: "greedy",
-    name: "GREEDY AI",
-    description: "Maximizes immediate captures",
-    power: 25,
-    color: "from-green-400 to-green-600",
-    image: "/images/bb8.png",
-    alt: "BB-8",
-  },
-  {
-    id: "minimax-3",
-    name: "MINIMAX",
-    description: "Strategic lookahead (depth 3)",
-    power: 60,
-    color: "from-blue-400 to-blue-600",
-    image: "/images/obi-wan.png",
-    alt: "Obi-Wan",
-  },
-  {
-    id: "monte-carlo",
-    name: "MONTE CARLO",
-    description: "Random simulation analysis",
-    power: 80,
-    color: "from-purple-400 to-purple-600",
-    image: "/images/vader.png",
-    alt: "Vader",
-  },
-  {
-    id: "hybrid",
-    name: "HYBRID MASTER",
-    description: "Adaptive strategy combination",
-    power: 95,
-    color: "from-red-400 to-red-600",
-    image: "/images/obi-wan-classic.png",
-    alt: "Master",
-  },
-]
-
-const getDifficultyName = (difficulty: string) => {
-  switch (difficulty) {
-    case "greedy":
-      return "Greedy AI"
-    case "minimax-3":
-      return "Minimax (Depth 3)"
-    case "monte-carlo":
-      return "Monte Carlo"
-    case "hybrid":
-      return "Hybrid Master"
-    default:
-      return "AI"
   }
 }
 
@@ -435,6 +381,23 @@ export function AIGame({ onNavigate }: AIGameProps) {
 
   const blackCount = game.board.flat().filter((cell) => cell === 1).length
   const whiteCount = game.board.flat().filter((cell) => cell === 2).length
+
+  const getDifficultyName = (difficulty: string) => {
+    switch (difficulty) {
+      case "greedy":
+        return "Greedy AI"
+      case "minimax-3":
+        return "Minimax (Depth 3)"
+      case "minimax-4":
+        return "Minimax (Depth 4)"
+      case "monte-carlo":
+        return "Monte Carlo"
+      case "hybrid":
+        return "Hybrid AI"
+      default:
+        return "AI"
+    }
+  }
 
   return (
     <div className="h-screen flex flex-col items-center justify-center relative px-8 overflow-hidden">

@@ -281,9 +281,7 @@ export function NetworkConnection({ onConnect, onBack }: NetworkConnectionProps)
                     <div key={index} className="flex items-center justify-between bg-gray-700/50 rounded-lg p-4">
                       <div>
                         <p className="text-white font-bold">{server.ip}</p>
-                        <p className="text-gray-400 text-sm">
-                          Players: {server.playersConnected}/2 | Port: {server.port}
-                        </p>
+                        <p className="text-gray-400 text-sm">Players: {server.playersConnected}/2 | Port: 4321</p>
                       </div>
                       <StarWarsButton onClick={() => handleJoinServer(server.ip)} disabled={isLoading} size="sm">
                         JOIN

@@ -1,8 +1,8 @@
 "use client"
 
+import { motion } from "framer-motion"
 import { StarWarsButton } from "@/components/star-wars-button"
 import type { GameState } from "@/app/page"
-import Image from "next/image"
 
 interface DuoSelectProps {
   onNavigate: (state: GameState) => void
@@ -10,88 +10,113 @@ interface DuoSelectProps {
 
 export function DuoSelect({ onNavigate }: DuoSelectProps) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center relative px-8">
       {/* Title */}
-      <div className="text-center mb-16">
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="text-center mb-16"
+      >
         <h1
-          className="text-4xl md:text-5xl font-bold text-yellow-400 mb-4 tracking-wider"
+          className="text-5xl font-bold text-yellow-400 mb-6 tracking-wider"
           style={{
-            textShadow: "0 0 20px #fbbf24",
+            textShadow: "0 0 30px #fbbf24, 0 0 60px #fbbf24",
             fontFamily: "Orbitron, monospace",
           }}
         >
-          MULTIPLAYER ARENA
+          MULTIPLAYER MODE
         </h1>
-        <p className="text-lg text-gray-300" style={{ fontFamily: "Orbitron, monospace" }}>
-          Choose your multiplayer experience
+        <p className="text-xl text-gray-300" style={{ fontFamily: "Orbitron, monospace" }}>
+          Choose your multiplayer option
         </p>
-      </div>
+      </motion.div>
 
-      {/* Options */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full">
-        {/* Create Lobby */}
-        <div
+      {/* Game Mode Cards */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl"
+      >
+        {/* Local Multiplayer */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="relative group cursor-pointer"
           onClick={() => onNavigate("duo-create")}
-          className="relative bg-gradient-to-br from-blue-900/80 to-cyan-700/80 backdrop-blur-sm rounded-2xl p-8 cursor-pointer border border-blue-500/30 hover:border-blue-400/60"
         >
-          <div className="text-center">
-            {/* Image */}
-            <div className="mb-6 relative w-20 h-20 mx-auto">
-              <Image
-                src="/images/millennium-falcon.webp"
-                alt="Millennium Falcon"
-                fill
-                className="object-contain"
-                sizes="80px"
-              />
-            </div>
+          <div
+            className="bg-gradient-to-br from-blue-900/80 to-blue-700/80 border-2 border-yellow-400 rounded-2xl p-8 text-center h-80"
+            style={{
+              boxShadow: "0 0 40px rgba(251, 191, 36, 0.3)",
+            }}
+          >
+            <motion.div
+              animate={{
+                rotate: [0, 10, -10, 0],
+                y: [0, -5, 0],
+              }}
+              transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
+              className="text-center mb-8"
+            >
+              <div className="w-20 h-20 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-yellow-400 text-3xl">🏠</span>
+              </div>
+            </motion.div>
 
-            <h3 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: "Orbitron, monospace" }}>
-              CREATE LOBBY
+            <h3 className="text-2xl font-bold text-yellow-400 mb-4" style={{ fontFamily: "Orbitron, monospace" }}>
+              LOCAL GAME
             </h3>
-
-            <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-              Host a new multiplayer battle and invite others to join your arena
-            </p>
-
-            <StarWarsButton onClick={() => onNavigate("duo-create")} className="w-full">
-              CREATE
-            </StarWarsButton>
+            <p className="text-gray-300 mb-6">Play on the same device with a friend</p>
+            <div className="text-yellow-400 text-sm">• Same device • Turn-based gameplay • Instant setup</div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Join Lobby */}
-        <div
-          onClick={() => onNavigate("duo-join")}
-          className="relative bg-gradient-to-br from-purple-900/80 to-pink-700/80 backdrop-blur-sm rounded-2xl p-8 cursor-pointer border border-purple-500/30 hover:border-purple-400/60"
+        {/* Network Multiplayer */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="relative group cursor-pointer"
+          onClick={() => onNavigate("network-setup")}
         >
-          <div className="text-center">
-            {/* Image */}
-            <div className="mb-6 relative w-20 h-20 mx-auto">
-              <Image src="/images/death-star.png" alt="Death Star" fill className="object-contain" sizes="80px" />
-            </div>
+          <div
+            className="bg-gradient-to-br from-red-900/80 to-red-700/80 border-2 border-yellow-400 rounded-2xl p-8 text-center h-80"
+            style={{
+              boxShadow: "0 0 40px rgba(251, 191, 36, 0.3)",
+            }}
+          >
+            <motion.div
+              animate={{
+                x: [0, 10, -10, 0],
+                y: [0, -5, 0],
+              }}
+              transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
+              className="text-center mb-8"
+            >
+              <div className="w-20 h-20 bg-yellow-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-yellow-400 text-3xl">🌐</span>
+              </div>
+            </motion.div>
 
-            <h3 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: "Orbitron, monospace" }}>
-              JOIN LOBBY
+            <h3 className="text-2xl font-bold text-yellow-400 mb-4" style={{ fontFamily: "Orbitron, monospace" }}>
+              NETWORK GAME
             </h3>
-
-            <p className="text-gray-300 text-sm mb-6 leading-relaxed">
-              Enter a lobby code to join an existing battle arena
-            </p>
-
-            <StarWarsButton onClick={() => onNavigate("duo-join")} variant="secondary" className="w-full">
-              JOIN
-            </StarWarsButton>
+            <p className="text-gray-300 mb-6">Connect with players on your local network</p>
+            <div className="text-yellow-400 text-sm">• Different devices • Real-time sync • LAN connection</div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Back button */}
-      <div className="absolute bottom-8 left-8">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
+        className="absolute bottom-8 left-8"
+      >
         <StarWarsButton onClick={() => onNavigate("mode-select")} variant="secondary">
           ← BACK
         </StarWarsButton>
-      </div>
+      </motion.div>
     </div>
   )
 }
