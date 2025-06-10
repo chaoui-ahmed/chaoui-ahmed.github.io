@@ -8,15 +8,42 @@ export default function AIDifficultyPage() {
   const router = useRouter()
   const { gameState, updateGameState } = useGame()
 
-  const handleDifficultySelection = (difficulty: number) => {
-    updateGameState({ aiDifficulty: difficulty as 1 | 2 | 3 })
+  const handleDifficultySelection = (difficulty: string) => {
+    updateGameState({ aiDifficulty: difficulty as any })
     router.push("/ai/game")
   }
 
   const difficulties = [
-    { level: 1, name: "Padawan", power: 33, description: "Niveau débutant" },
-    { level: 2, name: "Chevalier Jedi", power: 66, description: "Niveau intermédiaire" },
-    { level: 3, name: "Maître Jedi", power: 100, description: "Niveau expert" },
+    {
+      level: "Greedy Algorithm",
+      name: "Greedy AI",
+      power: 25,
+      description: "Quick decisions, captures most pieces immediately",
+    },
+    {
+      level: "Minimax (Depth 3)",
+      name: "Tactical AI",
+      power: 60,
+      description: "Strategic thinking, 3 moves ahead",
+    },
+    {
+      level: "Minimax (Depth 4)",
+      name: "Strategic AI",
+      power: 75,
+      description: "Advanced planning, 4 moves ahead",
+    },
+    {
+      level: "Monte Carlo",
+      name: "Simulation AI",
+      power: 80,
+      description: "Uses probability and random sampling",
+    },
+    {
+      level: "Hybrid AI",
+      name: "Master AI",
+      power: 95,
+      description: "Adaptive intelligence, switches strategies",
+    },
   ]
 
   return (
@@ -27,7 +54,7 @@ export default function AIDifficultyPage() {
           <p className="text-white">Personnage sélectionné: {gameState.selectedCharacter}</p>
         </div>
 
-        <div className="flex gap-6 justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 justify-center">
           {difficulties.map((diff) => (
             <div key={diff.level} className="cursor-pointer" onClick={() => handleDifficultySelection(diff.level)}>
               <GameCard

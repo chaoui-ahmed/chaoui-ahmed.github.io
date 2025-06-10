@@ -145,15 +145,15 @@ class OthelloGame {
     if (validMoves.length === 0) return null
 
     switch (difficulty) {
-      case "greedy":
+      case "Greedy Algorithm":
         return this.getGreedyMove(validMoves)
-      case "minimax-3":
+      case "Minimax (Depth 3)":
         return this.getMinimaxMove(validMoves, 3)
-      case "minimax-4":
+      case "Minimax (Depth 4)":
         return this.getMinimaxMove(validMoves, 4)
-      case "monte-carlo":
+      case "Monte Carlo":
         return this.getMonteCarloMove(validMoves)
-      case "hybrid":
+      case "Hybrid AI":
         return this.getHybridMove(validMoves)
       default:
         return validMoves[Math.floor(Math.random() * validMoves.length)]
@@ -331,7 +331,7 @@ export function AIGame({ onNavigate }: AIGameProps) {
     if (game.currentPlayer === 2 && !game.gameOver) {
       setIsAIThinking(true)
       const timer = setTimeout(() => {
-        const aiMove = game.getAIMove(gameState.aiDifficulty || "greedy")
+        const aiMove = game.getAIMove(gameState.aiDifficulty || "Greedy Algorithm")
         if (aiMove) {
           const newGame = new OthelloGame()
           newGame.board = game.board.map((row) => [...row])
@@ -384,15 +384,15 @@ export function AIGame({ onNavigate }: AIGameProps) {
 
   const getDifficultyName = (difficulty: string) => {
     switch (difficulty) {
-      case "greedy":
+      case "Greedy Algorithm":
         return "Greedy AI"
-      case "minimax-3":
+      case "Minimax (Depth 3)":
         return "Minimax (Depth 3)"
-      case "minimax-4":
+      case "Minimax (Depth 4)":
         return "Minimax (Depth 4)"
-      case "monte-carlo":
+      case "Monte Carlo":
         return "Monte Carlo"
-      case "hybrid":
+      case "Hybrid AI":
         return "Hybrid AI"
       default:
         return "AI"
@@ -413,7 +413,7 @@ export function AIGame({ onNavigate }: AIGameProps) {
         </h1>
         <p className="text-white text-lg">
           {gameState.selectedCharacter === "jedi" ? "Jedi Master" : "Sith Lord"} vs{" "}
-          {getDifficultyName(gameState.aiDifficulty || "greedy")}
+          {getDifficultyName(gameState.aiDifficulty || "Greedy Algorithm")}
         </p>
         <p className="text-yellow-400 text-sm mt-2">
           {isAIThinking ? "AI is thinking..." : game.currentPlayer === 1 ? "Your turn" : "AI turn"}

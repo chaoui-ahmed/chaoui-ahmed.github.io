@@ -14,31 +14,49 @@ export function AIDifficulty({ onNavigate }: AIDifficultyProps) {
 
   const difficulties = [
     {
-      id: "padawan",
-      name: "PADAWAN",
-      description: "Young learner, basic AI",
+      id: "Greedy Algorithm",
+      name: "GREEDY AI",
+      description: "Quick decisions, captures most pieces immediately",
       power: 25,
       color: "from-green-400 to-green-600",
       image: "/images/luke.png",
       alt: "Luke Skywalker",
     },
     {
-      id: "knight",
-      name: "JEDI KNIGHT",
-      description: "Skilled warrior, moderate AI",
+      id: "Minimax (Depth 3)",
+      name: "TACTICAL AI",
+      description: "Strategic thinking, 3 moves ahead",
       power: 60,
       color: "from-blue-400 to-blue-600",
       image: "/images/obi-wan.png",
       alt: "Obi-Wan Kenobi",
     },
     {
-      id: "master",
-      name: "JEDI MASTER",
-      description: "Wise master, advanced AI",
-      power: 90,
+      id: "Minimax (Depth 4)",
+      name: "STRATEGIC AI",
+      description: "Advanced planning, 4 moves ahead",
+      power: 75,
       color: "from-purple-400 to-purple-600",
       image: "/images/obi-wan-classic.png",
       alt: "Obi-Wan Master",
+    },
+    {
+      id: "Monte Carlo",
+      name: "SIMULATION AI",
+      description: "Uses probability and random sampling",
+      power: 80,
+      color: "from-orange-400 to-orange-600",
+      image: "/images/vader.png",
+      alt: "Darth Vader",
+    },
+    {
+      id: "Hybrid AI",
+      name: "MASTER AI",
+      description: "Adaptive intelligence, switches strategies",
+      power: 95,
+      color: "from-red-400 to-red-600",
+      image: "/images/vader.png",
+      alt: "Sith Master",
     },
   ]
 
@@ -79,56 +97,56 @@ export function AIDifficulty({ onNavigate }: AIDifficultyProps) {
       </div>
 
       {/* Difficulty cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16">
         {difficulties.map((difficulty, index) => (
           <div
             key={difficulty.id}
             onClick={() => handleDifficultySelect(difficulty)}
             className={`
-              relative w-72 h-80 rounded-2xl cursor-pointer overflow-hidden
-              bg-gradient-to-br ${difficulty.color} p-1
+              relative w-64 h-80 rounded-2xl cursor-pointer overflow-hidden
+              bg-gradient-to-br ${difficulty.color} p-1 hover:scale-105 transition-transform
             `}
             style={{
               boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
             }}
           >
             {/* Inner content */}
-            <div className="w-full h-full bg-black/85 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+            <div className="w-full h-full bg-black/85 backdrop-blur-sm rounded-2xl p-4 flex flex-col items-center justify-center text-center">
               {/* Character Image */}
-              <div className="relative w-20 h-20 mb-6 leading-8">
+              <div className="relative w-16 h-16 mb-4">
                 <Image
                   src={difficulty.image || "/placeholder.svg"}
                   alt={difficulty.alt}
                   fill
                   className="object-contain"
-                  sizes="80px"
+                  sizes="64px"
                 />
               </div>
 
               {/* Name */}
-              <h3 className="text-2xl font-bold text-white mb-4" style={{ fontFamily: "Orbitron, monospace" }}>
+              <h3 className="text-xl font-bold text-white mb-3" style={{ fontFamily: "Orbitron, monospace" }}>
                 {difficulty.name}
               </h3>
 
               {/* Power gauge */}
-              <div className="w-full mb-6">
+              <div className="w-full mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-white text-sm">Power Level:</span>
-                  <span className="text-yellow-400 font-bold">{difficulty.power}%</span>
+                  <span className="text-white text-xs">Power Level:</span>
+                  <span className="text-yellow-400 font-bold text-sm">{difficulty.power}%</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
                   <div
-                    className={`h-3 rounded-full bg-gradient-to-r ${difficulty.color}`}
+                    className={`h-2 rounded-full bg-gradient-to-r ${difficulty.color}`}
                     style={{ width: `${difficulty.power}%` }}
                   />
                 </div>
               </div>
 
               {/* Description */}
-              <p className="text-gray-300 text-sm mb-6 leading-relaxed">{difficulty.description}</p>
+              <p className="text-gray-300 text-xs mb-4 leading-relaxed">{difficulty.description}</p>
 
               {/* Select button */}
-              <StarWarsButton onClick={() => handleDifficultySelect(difficulty)} className="w-full">
+              <StarWarsButton onClick={() => handleDifficultySelect(difficulty)} className="w-full text-sm">
                 CHOOSE
               </StarWarsButton>
             </div>
