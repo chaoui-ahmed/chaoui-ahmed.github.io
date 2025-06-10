@@ -1,103 +1,66 @@
 "use client"
 
 import { useState } from "react"
-import { StarField } from "@/components/star-field"
-import { MainMenu } from "@/components/main-menu"
 import { ModeSelect } from "@/components/mode-select"
-import { AICharacterSelect } from "@/components/ai-character-select"
-import { AIDifficulty } from "@/components/ai-difficulty"
-import { AIGame } from "@/components/ai-game"
-import { PuzzleLevels } from "@/components/puzzle-levels"
-import { PuzzleGame } from "@/components/puzzle-game"
-import { DuoSelect } from "@/components/duo-select"
-import { DuoCreate } from "@/components/duo-create"
-import { DuoJoin } from "@/components/duo-join"
-import { DuoLobby } from "@/components/duo-lobby"
-import { DuoGame } from "@/components/duo-game"
-import { NetworkConnection } from "@/components/network-connection"
-import { GameProvider } from "@/contexts/game-context"
-import { SoundManager } from "@/components/sound-manager"
+import { AIVsAIBattle } from "@/components/ai-vs-ai-battle"
 
-export type GameState =
-  | "main-menu"
-  | "mode-select"
-  | "ai-character-select"
-  | "ai-difficulty"
-  | "ai-game"
-  | "puzzle-levels"
-  | "puzzle-game"
-  | "duo-select"
-  | "duo-create"
-  | "duo-join"
-  | "duo-lobby"
-  | "duo-game"
-  | "network-setup"
-  | "network-game"
+export default function StarWarsGame() {
+  const [currentView, setCurrentView] = useState<string>("mode-select")
 
-export default function Home() {
-  const [gameState, setGameState] = useState<GameState>("main-menu")
-  const [isNetworkGame, setIsNetworkGame] = useState(false)
-  const [networkGameId, setNetworkGameId] = useState("")
-  const [isHost, setIsHost] = useState(false)
-
-  const handleNetworkConnect = (gameId: string, hostStatus: boolean) => {
-    setNetworkGameId(gameId)
-    setIsHost(hostStatus)
-    setIsNetworkGame(true)
-    setGameState("network-game")
+  const handleModeSelect = (mode: string) => {
+    setCurrentView(mode)
   }
 
-  const renderCurrentState = () => {
-    switch (gameState) {
-      case "main-menu":
-        return <MainMenu onNavigate={setGameState} />
-      case "mode-select":
-        return <ModeSelect onNavigate={setGameState} />
-      case "ai-character-select":
-        return <AICharacterSelect onNavigate={setGameState} />
-      case "ai-difficulty":
-        return <AIDifficulty onNavigate={setGameState} />
-      case "ai-game":
-        return <AIGame onNavigate={setGameState} />
-      case "puzzle-levels":
-        return <PuzzleLevels onNavigate={setGameState} />
-      case "puzzle-game":
-        return <PuzzleGame onNavigate={setGameState} />
-      case "duo-select":
-        return <DuoSelect onNavigate={setGameState} />
-      case "duo-create":
-        return <DuoCreate onNavigate={setGameState} />
-      case "duo-join":
-        return <DuoJoin onNavigate={setGameState} />
-      case "duo-lobby":
-        return <DuoLobby onNavigate={setGameState} />
-      case "duo-game":
-        return <DuoGame onNavigate={setGameState} />
-      case "network-setup":
-        return <NetworkConnection onConnect={handleNetworkConnect} onBack={() => setGameState("duo-select")} />
-      case "network-game":
-        return (
-          <DuoGame
-            onNavigate={setGameState}
-            networkMode={{
-              gameId: networkGameId,
-              isHost,
-              isNetworkGame: true,
-            }}
-          />
-        )
-      default:
-        return <MainMenu onNavigate={setGameState} />
-    }
+  const handleBack = () => {
+    setCurrentView("mode-select")
   }
 
   return (
-    <GameProvider>
-      <div className="relative min-h-screen bg-black overflow-hidden">
-        <StarField />
-        <SoundManager />
-        {renderCurrentState()}
-      </div>
-    </GameProvider>
+    <div className="min-h-screen">
+      {currentView === "mode-select" && <ModeSelect onModeSelect={handleModeSelect} />}
+      {currentView === "ai-network" && <AIVsAIBattle onBack={handleBack} />}
+      {currentView === "ai" && (
+        <div className="min-h-screen flex items-center justify-center bg-gray-900">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-yellow-400 mb-4">AI Mode</h1>
+            <p className="text-white mb-8">Coming soon...</p>
+            <button
+              onClick={handleBack}
+              className="bg-yellow-400 text-black px-6 py-3 rounded font-bold hover:bg-yellow-500"
+            >
+              Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+      {currentView === "puzzle" && (
+        <div className="min-h-screen flex items-center justify-center bg-gray-900">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-yellow-400 mb-4">Puzzle Mode</h1>
+            <p className="text-white mb-8">Coming soon...</p>
+            <button
+              onClick={handleBack}
+              className="bg-yellow-400 text-black px-6 py-3 rounded font-bold hover:bg-yellow-500"
+            >
+              Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+      {currentView === "duo" && (
+        <div className="min-h-screen flex items-center justify-center bg-gray-900">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-yellow-400 mb-4">Duo Mode</h1>
+            <p className="text-white mb-8">Coming soon...</p>
+            <button
+              onClick={handleBack}
+              className="bg-yellow-400 text-black px-6 py-3 rounded font-bold hover:bg-yellow-500"
+            >
+              Back to Menu
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
