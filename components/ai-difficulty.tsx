@@ -95,7 +95,7 @@ export function AIDifficulty({ onNavigate }: AIDifficultyProps) {
             {/* Inner content */}
             <div className="w-full h-full bg-black/85 backdrop-blur-sm rounded-2xl p-6 flex flex-col items-center justify-center text-center">
               {/* Character Image */}
-              <div className="relative w-20 h-20 mb-6">
+              <div className="relative w-20 h-20 mb-6 leading-8">
                 <Image
                   src={difficulty.image || "/placeholder.svg"}
                   alt={difficulty.alt}
