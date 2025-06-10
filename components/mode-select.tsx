@@ -1,153 +1,91 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Bot, Users, Puzzle, Wifi } from "lucide-react"
+import { StarWarsButton } from "@/components/star-wars-button"
+import type { GameState } from "@/app/page"
+import Image from "next/image"
 
 interface ModeSelectProps {
-  onModeSelect: (mode: string) => void
+  onNavigate: (state: GameState) => void
 }
 
-export function ModeSelect({ onModeSelect }: ModeSelectProps) {
-  const [hoveredMode, setHoveredMode] = useState<string | null>(null)
-
+export function ModeSelect({ onNavigate }: ModeSelectProps) {
   const modes = [
     {
       id: "ai",
-      title: "AI MODE",
-      description: "Battle against advanced AI opponents",
-      icon: Bot,
-      color: "from-red-600 to-red-800",
-      characters: ["Obi-Wan", "Vader"],
+      title: "AI BATTLE",
+      description: "Challenge the computer in a strategic duel",
+      icon: "/images/vader.png", // Changed to Darth Vader
+      color: "from-blue-600 to-blue-800",
+      action: () => onNavigate("ai-character-select"),
     },
     {
       id: "puzzle",
       title: "PUZZLE MODE",
-      description: "Solve challenging Othello puzzles",
-      icon: Puzzle,
-      color: "from-blue-600 to-blue-800",
-      characters: ["Anakin"],
+      description: "Solve strategic challenges to improve your skills",
+      icon: "/images/luke.png", // Changed to Luke Skywalker
+      color: "from-amber-500 to-amber-700",
+      action: () => onNavigate("puzzle-levels"),
     },
     {
       id: "duo",
-      title: "DUO MODE",
-      description: "Multiplayer battles with friends",
-      icon: Users,
-      color: "from-green-600 to-green-800",
-      characters: ["R2-D2", "C-3PO"],
-    },
-    {
-      id: "ai-network",
-      title: "AI NETWORK BATTLE",
-      description: "Watch AIs battle across the network",
-      icon: Wifi,
+      title: "MULTIPLAYER",
+      description: "Battle against other players online",
+      icon: "/images/c3po.png",
       color: "from-purple-600 to-purple-800",
-      characters: ["Network AIs"],
+      action: () => onNavigate("duo-select"),
     },
   ]
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center relative px-8 overflow-hidden bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
-      {/* Animated background stars */}
-      <div className="absolute inset-0 overflow-hidden">
-        {Array.from({ length: 50 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute bg-white rounded-full opacity-70 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 3 + 1}px`,
-              height: `${Math.random() * 3 + 1}px`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${Math.random() * 3 + 2}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Title */}
-      <div className="text-center mb-12 z-10">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6">
+      <div className="text-center mb-12">
         <h1
-          className="text-6xl font-bold text-yellow-400 mb-4 tracking-wider"
+          className="text-5xl font-bold text-yellow-400 mb-4"
           style={{
+            textShadow: "0 0 20px #fbbf24",
             fontFamily: "Orbitron, monospace",
-            textShadow: "0 0 20px rgba(255, 255, 0, 0.5)",
           }}
         >
           SELECT MODE
         </h1>
-        <p className="text-xl text-white opacity-80">Choose your path to victory</p>
+        <p className="text-xl text-gray-300" style={{ fontFamily: "Orbitron, monospace" }}>
+          Choose your path in the galaxy
+        </p>
       </div>
 
-      {/* Mode Selection Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl w-full z-10">
-        {modes.map((mode) => {
-          const IconComponent = mode.icon
-          return (
-            <Card
-              key={mode.id}
-              className={`relative overflow-hidden border-2 border-yellow-400 bg-gradient-to-br ${mode.color} hover:scale-105 transition-all duration-300 cursor-pointer group`}
-              onMouseEnter={() => setHoveredMode(mode.id)}
-              onMouseLeave={() => setHoveredMode(null)}
-              onClick={() => onModeSelect(mode.id)}
-            >
-              <CardContent className="p-8 text-center relative">
-                {/* Glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                {/* Icon */}
-                <div className="mb-6 flex justify-center">
-                  <div className="p-4 rounded-full bg-yellow-400/20 border-2 border-yellow-400">
-                    <IconComponent className="w-12 h-12 text-yellow-400" />
-                  </div>
-                </div>
-
-                {/* Title */}
-                <h2
-                  className="text-3xl font-bold text-yellow-400 mb-4 tracking-wider"
-                  style={{ fontFamily: "Orbitron, monospace" }}
-                >
-                  {mode.title}
-                </h2>
-
-                {/* Description */}
-                <p className="text-white text-lg mb-6 opacity-90">{mode.description}</p>
-
-                {/* Characters */}
-                <div className="flex justify-center gap-2 mb-6">
-                  {mode.characters.map((character, index) => (
-                    <div
-                      key={index}
-                      className="px-3 py-1 bg-black/30 rounded-full text-yellow-400 text-sm border border-yellow-400/50"
-                    >
-                      {character}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Hover effect */}
-                {hoveredMode === mode.id && (
-                  <div className="absolute inset-0 border-4 border-yellow-400 rounded-lg animate-pulse" />
-                )}
-
-                {/* Select Button */}
-                <Button
-                  className="bg-yellow-400 text-black hover:bg-yellow-500 font-bold py-3 px-8 rounded-lg transition-all duration-300 transform group-hover:scale-110"
-                  style={{ fontFamily: "Orbitron, monospace" }}
-                >
-                  SELECT
-                </Button>
-              </CardContent>
-            </Card>
-          )
-        })}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl w-full mb-12">
+        {modes.map((mode) => (
+          <div
+            key={mode.id}
+            onClick={mode.action}
+            className={`bg-gradient-to-br ${mode.color} rounded-xl p-1 cursor-pointer`}
+          >
+            <div className="bg-gray-900 rounded-lg p-3 flex flex-col items-center text-center h-full">
+              <div className="relative w-96 h-96 mb-2">
+                <Image
+                  src={mode.icon || "/placeholder.svg"}
+                  alt={mode.title}
+                  fill
+                  className="object-contain"
+                  sizes="384px"
+                />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: "Orbitron, monospace" }}>
+                {mode.title}
+              </h3>
+              <p className="text-gray-300 text-sm mb-3 flex-grow">{mode.description}</p>
+              <StarWarsButton onClick={mode.action} className="w-full">
+                SELECT
+              </StarWarsButton>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Footer */}
-      <div className="mt-12 text-center z-10">
-        <p className="text-gray-400 text-sm">May the Force be with you in your choice...</p>
+      <div>
+        <StarWarsButton onClick={() => onNavigate("main-menu")} variant="secondary">
+          ← BACK
+        </StarWarsButton>
       </div>
     </div>
   )
