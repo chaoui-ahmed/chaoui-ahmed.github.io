@@ -1,0 +1,16 @@
+{
+  "name": "star-wars-othello-bridge",
+  "version": "1.0.0",
+  "description": "TCP/WebSocket bridge for Star Wars Othello game",
+  "main": "tcp-bridge.js",
+  "scripts": {
+    "start": "node tcp-bridge.js",
+    "dev": "nodemon tcp-bridge.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
