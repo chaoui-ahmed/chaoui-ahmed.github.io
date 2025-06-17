@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  experimental: {
-    appDir: true,
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -12,16 +8,15 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    domains: [
+      "hebbkx1anhila5yf.public.blob.vercel-storage.com",
+      "cdn.jsdelivr.net",
+      "upload.wikimedia.org",
+      "cdn.countryflags.com",
+    ],
   },
-  webpack: (config, { isServer }) => {
-    // Fixes npm packages that depend on `fs` module
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-      }
-    }
-    return config
+  experimental: {
+    forceSwcTransforms: true,
   },
 }
 
