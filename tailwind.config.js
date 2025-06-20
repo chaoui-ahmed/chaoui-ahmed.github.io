@@ -1,15 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "*.{js,ts,jsx,tsx,mdx}",
-    "app/**/*.{ts,tsx}",
-    "components/**/*.{ts,tsx}",
-  ],
+  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}", "*.{js,ts,jsx,tsx,mdx}"],
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       colors: {
         border: "hsl(var(--border))",
@@ -45,39 +45,37 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        mint: {
+          50: "#f2fbf9",
+          100: "#d3f4ed",
+          200: "#a7e9db",
+          300: "#70d7c4",
+          400: "#3dc2aa",
+          500: "#20a68f",
+          600: "#198574",
+          700: "#17695d",
+          800: "#15544c",
+          900: "#134740",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      fontFamily: {
-        orbitron: ["Orbitron", "monospace"],
-      },
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-      },
-      // Animations simplifiées pour Raspberry Pi
-      animation: {
-        "pulse-glow": "pulse-glow 3s ease-in-out infinite alternate",
-        float: "float 4s ease-in-out infinite",
-        "spin-slow": "spin 12s linear infinite",
-      },
       keyframes: {
-        "pulse-glow": {
-          "0%": {
-            boxShadow: "0 0 15px rgba(251, 191, 36, 0.3)",
-            transform: "scale(1)",
-          },
-          "100%": {
-            boxShadow: "0 0 25px rgba(251, 191, 36, 0.6)",
-            transform: "scale(1.01)",
-          },
+        "accordion-down": {
+          from: { height: 0 },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
-        float: {
-          "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-5px)" },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: 0 },
         },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },

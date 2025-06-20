@@ -1,14 +1,29 @@
-import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { GameProvider } from "@/contexts/game-context"
+import type React from "react"
+import { DynamicBackground } from "@/components/dynamic-background"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "The Stars - Star Wars Game",
-  description: "A Star Wars themed strategy game experience",
+  title: "Ahmed Chaoui",
+  description: "Portfolio d'Ahmed Chaoui - Étudiant en ingénierie",
+  icons: {
+    icon: [
+      {
+        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png",
+        type: "image/png",
+      },
+    ],
+    shortcut: [
+      {
+        url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png",
+        type: "image/png",
+      },
+    ],
+    apple: [{ url: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png" }],
+  },
     generator: 'v0.dev'
 }
 
@@ -19,9 +34,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
-        <GameProvider>{children}</GameProvider>
+      <head>
+        <link
+          rel="icon"
+          type="image/png"
+          href="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/AC-KylEovDuzrHN7jQGZPoChwnNBrEbUQ.png"
+        />
+      </head>
+      <body className={`${inter.className} relative min-h-screen`}>
+        <DynamicBackground />
+        <div className="relative z-10">{children}</div>
       </body>
     </html>
   )
