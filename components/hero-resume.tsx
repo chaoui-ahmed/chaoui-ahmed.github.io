@@ -236,6 +236,48 @@ function Projects({ language }: { language: string }) {
   )
 }
 
+function Guides({ language }: { language: string }) {
+  const guides = {
+    en: [
+      {
+        title: "Building Your First Autonomous AI Agent with Claude Code",
+        description: "Learn how to configure CLAUDE.md files and run Claude Code local agents to automate directory searches.",
+        link: "/guides/claude-code"
+      }
+    ],
+    fr: [
+      {
+        title: "Créer votre premier Agent IA autonome avec Claude Code",
+        description: "Apprenez à configurer les fichiers CLAUDE.md et à exécuter des agents Claude Code locaux pour automatiser des tâches.",
+        link: "/guides/claude-code"
+      }
+    ]
+  }
+
+  const data = guides[language as keyof typeof guides]
+
+  return (
+    <Section title={language === "en" ? "TECHNICAL GUIDES & ARTICLES" : "GUIDES TECHNIQUES & ARTICLES"}>
+      <div className="space-y-4">
+        {data.map((guide, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            className="bg-white rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-mint-100"
+          >
+            <Link href={guide.link} className="font-bold text-mint-800 text-lg hover:underline block mb-1">
+              {guide.title}
+            </Link>
+            <p className="text-mint-600 text-sm">{guide.description}</p>
+          </motion.div>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
 function AdditionalExperiences({ language }: { language: string }) {
   const experiences = {
     en: [
@@ -389,6 +431,9 @@ export default function HeroResume({
               </div>
               <div id="projects">
                 <Projects language={language} />
+              </div>
+              <div id="guides">
+                <Guides language={language} />
               </div>
               <AdditionalExperiences language={language} />
             </div>

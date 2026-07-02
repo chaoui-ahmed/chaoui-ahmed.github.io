@@ -14,6 +14,7 @@ export function Navigation({ language, setLanguage }: { language: string; setLan
     { href: "#experience", label: language === "en" ? "Experience" : "Expérience" },
     { href: "#languages", label: language === "en" ? "Languages" : "Langues" },
     { href: "#projects", label: language === "en" ? "Projects" : "Projets" },
+    { href: "#guides", label: language === "en" ? "Guides" : "Guides" },
   ]
 
   useEffect(() => {
