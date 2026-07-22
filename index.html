@@ -566,6 +566,7 @@ class Component extends DCLogic {
         if(d<band){ color=mix(colors[cur],colors[cur-1],smooth((band-d)/(2*band))); }
       }
       backdrop.style.background=color;
+      document.body.style.background=color;
       const el=eras[cur];
       if(yearEl) yearEl.textContent=el.getAttribute('data-year');
       if(nameEl) nameEl.textContent=el.getAttribute('data-name');
