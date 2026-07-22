@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ahmed Chaoui — AI / ML Engineer</title>
+<meta name="description" content="Portfolio of Ahmed Chaoui — AI & ML Engineer student at Trinity College Dublin & EURECOM. Specialised in Machine Learning, Deep Learning, and Data Science.">
+<meta property="og:title" content="Ahmed Chaoui — AI / ML Engineer">
+<meta property="og:description" content="Portfolio of Ahmed Chaoui — AI & ML Engineer student at Trinity College Dublin & EURECOM.">
+<meta property="og:type" content="website">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400..900;1,400..900&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"}}</script>
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;background:#1b34ff;color:#f4ecdd;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+  @keyframes cue{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(8px);opacity:1}}
+  #face-wrap{perspective:900px;animation:floaty 5.5s ease-in-out infinite;cursor:pointer}
+  #face-inner{transition:transform .18s ease-out;transform-style:preserve-3d;will-change:transform}
+  #face-img{transition:transform .35s cubic-bezier(.2,.9,.3,1.3),filter .35s ease;filter:drop-shadow(0 24px 40px rgba(0,0,0,.35))}
+  #face-wrap:hover #face-img{transform:scale(1.07) rotate(-3deg);filter:drop-shadow(0 30px 55px rgba(0,0,0,.45))}
+  #face-tag{opacity:0;transform:translateY(6px) rotate(-4deg);transition:opacity .3s ease,transform .3s ease}
+  #face-wrap:hover #face-tag{opacity:1;transform:translateY(0) rotate(-4deg)}
+  .navlink{position:relative}
+  .navlink::after{content:"";position:absolute;left:0;bottom:-3px;width:0;height:2px;background:currentColor;transition:width .25s ease}
+  .navlink:hover::after{width:100%}
+  .chip{font-size:13px;font-weight:600;border:1.5px solid rgba(244,236,221,.42);border-radius:100px;padding:6px 14px;white-space:nowrap}
+  .chip-solid{font-size:13px;font-weight:700;background:#f4ecdd;color:#111;border-radius:100px;padding:6px 14px;white-space:nowrap}
+  .card{border:1.5px solid rgba(244,236,221,.28);border-radius:14px;padding:26px 26px 24px;transition:background .3s ease,transform .3s ease}
+  .card:hover{background:rgba(244,236,221,.07);transform:translateY(-4px)}
+  .rail-dot{width:9px;height:9px;border-radius:50%;background:#f4ecdd;transition:opacity .3s ease,transform .3s ease}
+  .grouphd{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.72;margin:30px 0 2px}
+  details.course{border-top:1.5px solid rgba(244,236,221,.2)}
+  details.course>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 2px;font-weight:700;font-size:clamp(16px,2vw,19px);line-height:1.2}
+  details.course>summary::-webkit-details-marker{display:none}
+  details.course .rt{display:flex;align-items:center;gap:14px;flex:none}
+  details.course .rlab{font-size:12.5px;font-weight:600;opacity:.6;white-space:nowrap}
+  details.course .plus{font-weight:400;font-size:24px;line-height:1;opacity:.65;transition:transform .25s ease}
+  details.course[open] .plus{transform:rotate(45deg)}
+  details.course .desc{padding:0 2px 20px;font-size:15.5px;font-weight:500;line-height:1.62;color:rgba(244,236,221,.84);max-width:760px}
+  details.course .desc b{font-weight:800;color:#f4ecdd}
+  details.course:hover>summary{opacity:.82}
+</style>
+</helmet>
+
+<div id="backdrop" style="position:fixed;inset:0;background:#1b34ff;z-index:0;transition:background .12s linear"></div>
+
+<div style="position:fixed;left:26px;bottom:24px;z-index:30;pointer-events:none;line-height:1">
+  <div id="era-year" style="font-size:15px;font-weight:800;letter-spacing:.02em;color:#f4ecdd">2026</div>
+  <div id="era-name" style="font-size:12px;font-weight:600;color:rgba(244,236,221,.7);margin-top:3px">Present</div>
+</div>
+
+<div style="position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:16px;align-items:center;pointer-events:none">
+  <span data-tick="" class="rail-dot"></span>
+  <span data-tick="" class="rail-dot"></span>
+  <span data-tick="" class="rail-dot"></span>
+  <span data-tick="" class="rail-dot"></span>
+  <span data-tick="" class="rail-dot"></span>
+  <span data-tick="" class="rail-dot"></span>
+  <span data-tick="" class="rail-dot"></span>
+</div>
+
+<div style="position:relative;z-index:1;width:100%;overflow:hidden">
+
+  <!-- HERO / PRESENT -->
+  <section id="top" data-era="" data-color="#1b34ff" data-year="2026" data-name="Present" style="position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:96px 32px 60px">
+    <nav style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 40px;z-index:5">
+      <div style="font-size:21px;font-weight:800;letter-spacing:-.02em">Ahmed Chaoui<span style="font-size: 11px; vertical-align: super; font-weight: 700;">™</span></div>
+      <div style="display:flex;gap:26px;font-size:14px;font-weight:600">
+        <a class="navlink" href="#trinity">Trinity College</a>
+        <a class="navlink" href="#eurecom">EURECOM</a>
+        <a class="navlink" href="#cpge">Prepa</a>
+        <a class="navlink" href="#contact">Contact</a>
+      </div>
+    </nav>
+
+    <div id="face-wrap" style="position:relative;margin-bottom:8px">
+      <div id="face-inner">
+        <img id="face-img" src="./assets/face.png" alt="Ahmed Kouraichi" style="display:block;width:290px;height:auto">
+      </div>
+      <div id="face-tag" style="position:absolute;top:6px;right:-56px;background:#f4ecdd;color:#111;font-size:13px;font-weight:800;padding:7px 12px;border-radius:100px 100px 100px 2px">that's me</div>
+    </div>
+
+    <div style="font-size:clamp(62px,13vw,150px);font-weight:900;letter-spacing:-.05em;line-height:.82;text-align:center;margin-top:6px">AI / ML<br><span style="font-style:italic;font-weight:800">Engineer</span></div>
+    <p style="max-width:600px;text-align:center;font-size:clamp(15px,2vw,19px);font-weight:500;line-height:1.5;margin:28px 0 0;color:rgba(244,236,221,.86);text-wrap:pretty">Computer science student, 22, splitting time between France and Ireland.&nbsp;</p>
+    <a href="#trinity" style="margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,236,221,.7)"><span style="font-size: 22px; animation: 1.7s ease-in-out 0s infinite normal none running cue;">↓</span></a>
+  </section>
+
+  <!-- TRINITY -->
+  <section id="trinity" data-era="" data-color="#134f8f" data-year="2026–27" data-name="Trinity College Dublin" style="min-height:100vh;padding:120px 40px;display:flex;align-items:center">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <img src="./assets/logo-trinity.png" alt="Trinity College Dublin crest" style="width: 67px; height: 73px; object-fit: contain; flex: none; filter: brightness(0) invert(1)">
+        <div>
+          <div style="font-size:13px;font-weight:800;letter-spacing:.12em;opacity:.85">WHERE I AM&nbsp;· 2026–27 · DUBLIN, IRELAND</div>
+          <h2 style="font-size:clamp(32px,5.4vw,64px);font-weight:900;letter-spacing:-.04em;line-height:.96;margin:6px 0 0">Trinity College Dublin</h2>
+        </div>
+      </div>
+      <p style="font-size:clamp(16px,2vw,21px);font-weight:500;line-height:1.55;max-width:700px;margin:26px 0 0;color:rgba(244,236,221,.9);text-wrap:pretty"><strong style="font-weight:800">MSc in Computer Science — Data Science</strong>, admitted through the IMT double-degree mobility programme.</p>
+
+      <div style="margin-top:34px">
+        <div class="grouphd" style="margin-top:0">Core modules — Michaelmas (Sep–Dec)</div>
+        <details class="course"><summary>Machine Learning<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">Graduate-depth supervised and unsupervised learning — regression, classification, kernel methods, ensembles and neural nets — with the theory of generalisation and how to evaluate models honestly.</div></details>
+        <details class="course"><summary>Data Analytics<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">The full analytics pipeline: cleaning and wrangling messy data, mining patterns, and turning raw datasets into decisions and insight.</div></details>
+        <details class="course"><summary>Scalable Computing<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">Cloud, parallel and distributed systems for big data — how to store and compute over datasets too large for one machine.</div></details>
+        <details class="course"><summary>Research Methods &amp; Innovation<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">How to run rigorous research and communicate it, plus the innovation and company-building side — direct preparation for the dissertation.</div></details>
+
+        <div class="grouphd">Core modules — Hilary (Jan–Mar)</div>
+        <details class="course"><summary>Applied Statistical Modelling<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">Regression, generalised linear models and model selection applied to real problems — building statistical models that actually fit the data.</div></details>
+        <details class="course"><summary>Optimisation Algorithms for Data Analysis<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">Convex optimisation and gradient-based methods — the algorithms that sit underneath training every model, and how to make them converge.</div></details>
+        <details class="course"><summary>Data Visualisation<span class="rt"><span class="rlab">Core</span><span class="plus">+</span></span></summary><div class="desc">Turning analysis into visuals people can reason about — perception, encoding and building interactive, honest charts.</div></details>
+
+        <div class="grouphd">Then — Apr–Aug</div>
+        <details class="course"><summary>Research Dissertation<span class="rt"><span class="rlab">⅓ of the degree</span><span class="plus">+</span></span></summary><div class="desc">Four months of full-time individual research: experimental work, prototypes and a written thesis — the largest single piece of the MSc.</div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- EURECOM -->
+  <section id="eurecom" data-era="" data-color="#0d64b8" data-year="2024–27" data-name="EURECOM" style="min-height:100vh;padding:130px 40px">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <img src="./assets/logo-eurecom.png" alt="EURECOM logo" style="height:54px;max-width:230px;object-fit:contain;flex:none;filter:brightness(0) invert(1)">
+        <div>
+          <div style="font-size:13px;font-weight:800;letter-spacing:.12em;opacity:.85">WHERE I WAS · 2024–26 · SOPHIA ANTIPOLIS</div>
+          <h2 style="font-size:clamp(40px,8vw,104px);font-weight:900;letter-spacing:-.05em;line-height:.9;margin:6px 0 0">EURECOM</h2>
+        </div>
+      </div>
+      <p style="font-size:clamp(16px,2vw,21px);font-weight:500;line-height:1.55;max-width:700px;margin:24px 0 0;color:rgba(244,236,221,.92);text-wrap:pretty">A graduate engineering degree on the Data Science &amp; AI track, taught 100% in English. This is where the machine-learning really started from statistical inference to deep learning, plus the systems layer that makes models runnable at scale.&nbsp;</p>
+
+      <div class="grouphd">Machine Learning &amp; AI</div>
+      <details class="course"><summary>Machine Learning &amp; Intelligent Systems<span class="rt"><span class="rlab">MALIS</span><span class="plus">+</span></span></summary><div class="desc">Foundations of ML end to end — linear &amp; logistic regression, SVMs and kernels, decision trees and the bias–variance trade-off — with hands-on training, evaluation and the maths behind why models generalise.</div></details>
+      <details class="course"><summary>Deep Learning<span class="rt"><span class="rlab">DeepLearn</span><span class="plus">+</span></span></summary><div class="desc">Neural networks from backpropagation up: CNNs, RNNs and attention/transformers, regularisation and optimisation — implemented and trained in PyTorch.</div></details>
+      <details class="course"><summary>Advanced Statistical Inference<span class="rt"><span class="rlab">ASI</span><span class="plus">+</span></span></summary><div class="desc">The probabilistic backbone under modern ML — Bayesian inference, graphical models and approximate inference (EM, variational methods, sampling).</div></details>
+      <details class="course"><summary>Information Theory<span class="rt"><span class="rlab">InfoTheo · Elia</span><span class="plus">+</span></span></summary><div class="desc">Entropy, mutual information, source and channel coding — the fundamental limits of compression and communication that also frame learning.</div></details>
+      <details class="course"><summary>Applied &amp; Introductory Statistics<span class="rt"><span class="rlab">AppStat · Kanagawa</span><span class="plus">+</span></span></summary><div class="desc">Estimation, hypothesis testing, confidence intervals and regression on real datasets — the statistical reasoning that everything above stands on.</div></details>
+
+      <div class="grouphd">Data &amp; Systems</div>
+      <details class="course"><summary>Database System Implementation<span class="rt"><span class="rlab">DBSys</span><span class="plus">+</span></span></summary><div class="desc">Not just writing SQL — how a database engine works inside: storage layouts, indexing, query optimisation and transactions.</div></details>
+      <details class="course"><summary>Databases<span class="rt"><span class="rlab">DataBase</span><span class="plus">+</span></span></summary><div class="desc">Relational modelling and SQL.</div></details>
+      <details class="course"><summary>Distributed Systems &amp; Cloud Computing<span class="rt"><span class="rlab">Clouds</span><span class="plus">+</span></span></summary><div class="desc">MapReduce/Spark-style parallelism, consistency and fault tolerance — running computation across clusters in the cloud.</div></details>
+      <details class="course"><summary>Semantic Web &amp; Information Extraction<span class="rt"><span class="rlab">WebSem · Troncy</span><span class="plus">+</span></span></summary><div class="desc">Knowledge graphs, RDF/SPARQL and pulling structured meaning out of unstructured text.</div></details>
+
+      <div class="grouphd">Systems &amp; Networks</div>
+      <details class="course"><summary>Operating Systems<span class="rt"><span class="rlab">BasicOS</span><span class="plus">+</span></span></summary><div class="desc">Processes, memory and scheduling — the machine from the ground up.</div></details>
+      <details class="course"><summary>Computer Architecture<span class="rt"><span class="rlab">IntroArchi · Pacalet</span><span class="plus">+</span></span></summary><div class="desc">Logic gates to CPU pipelines.</div></details>
+      <details class="course"><summary>Networking<span class="rt"><span class="rlab">IntroNet · Ksentini</span><span class="plus">+</span></span></summary><div class="desc">The Internet's layers, TCP/IP and routing.</div></details>
+      <details class="course"><summary>IoT Protocols<span class="rt"><span class="rlab">APPIOT</span><span class="plus">+</span></span></summary><div class="desc">Messaging protocols for connected devices (MQTT/CoAP).</div></details>
+      <details class="course"><summary>Wireless Communication Lab<span class="rt"><span class="rlab">ComLab · Kaltenberger</span><span class="plus">+</span></span></summary><div class="desc">Theory and hands-on lab work on real wireless links and communication chains.</div></details>
+      <details class="course"><summary>Introduction to Cybersecurity<span class="rt"><span class="rlab">IntroSec · 19/20</span><span class="plus">+</span></span></summary><div class="desc">Attack/defence fundamentals, cryptography basics and secure-system thinking (with Aonzo). It happens to be my best grade — a course I enjoyed, <b>not a career I claim</b>.</div></details>
+
+      <div class="grouphd">Signal &amp; Imaging</div>
+      <details class="course"><summary>Digital Image Processing<span class="rt"><span class="rlab">ImProc · Dugelay</span><span class="plus">+</span></span></summary><div class="desc">Filtering, transforms, compression and feature extraction on images — the classical groundwork under computer vision.</div></details>
+      <details class="course"><summary>Sound &amp; Music Processing<span class="rt"><span class="rlab">SoundProc · Todisco</span><span class="plus">+</span></span></summary><div class="desc">Audio signals and spectral analysis — processing speech and music in the frequency domain.</div></details>
+
+      <div class="grouphd">Software &amp; Web</div>
+      <details class="course"><summary>Computer Programming &amp; IT Fundamentals<span class="rt"><span class="rlab">ComProg · ITBasics</span><span class="plus">+</span></span></summary><div class="desc">Solid programming foundations in C/C++ and the core tooling every engineer relies on.</div></details>
+      <details class="course"><summary>Modern Web Apps<span class="rt"><span class="rlab">WebInt</span><span class="plus">+</span></span></summary><div class="desc">Building modern responsive front-ends with React.</div></details>
+
+      <div class="grouphd">Other</div>
+      <details class="course"><summary>Discovery of Digital Professions<span class="rt"><span class="rlab">DigiPro 20/20</span><span class="plus">+</span></span></summary><div class="desc">A guided tour of what digital and AI careers actually look like (top marks).</div></details>
+      <details class="course"><summary>Japanese<span class="rt"><span class="rlab">JAP</span><span class="plus">+</span></span></summary><div class="desc">Starting Japanese from zero — because why not.</div></details>
+
+      <div style="margin-top:54px;font-size:13px;font-weight:700;letter-spacing:.12em;opacity:.75;margin-bottom:20px">THINGS I BUILT HERE</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">AI Chatbots for the City of Épinal</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">Intern · 2025</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">My summer internship at DGSITG: fine-tuned an internal LLM on municipal data and wired it to the city database cutting support tickets needing manual work by <strong style="font-weight: 800;">37%&nbsp;</strong>+ a public Dialogflow assistant on epinal.fr.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">LLM fine-tuning</span><span class="chip">RAG</span><span class="chip">Dialogflow CX</span></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">KV-Cache Compression Benchmark</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2025–26</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">Benchmarked LLM inference cache-compression across 5 different models. Expected Attention held <strong style="font-weight: 800;">84–85%</strong> accuracy at 80% compression while running <strong style="font-weight: 800;">~4.5× faster</strong> than the baseline.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">LLM Inference</span><span class="chip">Llama / Qwen</span><span class="chip">LLaVA-Next</span></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">Multimodal Sports Prediction</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2025</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">A late-fusion PyTorch model fusing match-statistic encoders with text embeddings to predict football outcomes. Backtested a positive-EV betting strategy to <strong style="font-weight:800">+24.8% ROI</strong>.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">PyTorch</span><span class="chip">RoBERTa</span><span class="chip">Late Fusion</span></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">Predictive Uncertainty via Deep Ensembles</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2025</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">Reproduced deep-ensemble uncertainty estimation (Lakshminarayanan et al. 2017) on UCI regression and MNIST/notMNIST OOD detection, evaluating calibration vs a single-model baseline.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">Uncertainty</span><span class="chip">OOD Detection</span><span class="chip">Calibration</span></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">Remote Othello with AI &amp; Audio Control</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">Project</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">A networked Othello game with a deep-learning opponent and voice controls, running on Raspberry Pi.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">Raspberry Pi</span><span class="chip">Python</span><span class="chip">Deep Learning</span></div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">Guidance System for the Visually Impaired</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">Project</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">An assistive navigation system prototyped on Raspberry Pi and modelled in Matlab/Simulink.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">Raspberry Pi</span><span class="chip">Matlab / Simulink</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top:44px;padding-top:24px;border-top:1.5px solid rgba(244,236,221,.28);display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:13px;font-weight:700;letter-spacing:.1em;opacity:.7;margin-right:6px">OUTSIDE CLASS</span>
+        <span class="chip">Head of Partnerships · Student Union (Year 2)</span>
+        <span class="chip">President · Student Union (Year 1)</span>
+        <span class="chip">Finance · Junior Enterprise</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CPGE -->
+  <section id="cpge" data-era="" data-color="#15693a" data-year="2022–24" data-name="Prep School · Lycée Fabert" style="min-height:100vh;display:flex;align-items:center;padding:120px 40px">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <img src="./assets/logo-fabert.png" alt="Lycée Fabert logo" style="width:74px;height:74px;object-fit:contain;flex:none;filter:brightness(0) invert(1)">
+        <div>
+          <div style="font-size:13px;font-weight:800;letter-spacing:.12em;opacity:.85">THE HARD YEARS · 2022–24 · METZ, FRANCE</div>
+          <h2 style="font-size:clamp(32px,6vw,76px);font-weight:900;letter-spacing:-.04em;line-height:.94;margin:6px 0 0"><span style="font-style:italic">MPSI → PSI*</span></h2>
+        </div>
+      </div>
+      <p style="font-size:clamp(16px,2vw,21px);font-weight:500;line-height:1.55;max-width:720px;margin:24px 0 0;color:rgba(244,236,221,.9);text-wrap:pretty">Two intense years of preparatory school at Lycée Fabert the selective track that feeds France's top engineering schools. First year in <strong style="font-weight: 800;">MPSI</strong>&nbsp;Mathematics, Physics &amp; Engineering Science, the most theory-heavy science track. Then the starred second year <strong style="font-weight: 800;">PSI*</strong>&nbsp;Physics &amp; Engineering Science, where the star marks the most selective class, reserved for the strongest students.</p>
+
+      <div class="grouphd">Mathematics</div>
+      <details class="course"><summary>Analysis<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Sequences &amp; series, functions of a real variable, integration, differential equations, and functions of several variables.</div></details>
+      <details class="course"><summary>Algebra<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Vector spaces, linear transformations and matrix theory, and the structures of groups, rings and fields.</div></details>
+      <details class="course"><summary>Probability &amp; Statistics<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Probability spaces, discrete and continuous random variables, and the fundamental limit theorems.</div></details>
+      <details class="course"><summary>Geometry<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Affine and Euclidean geometry, parametric curves and geometric transformations.</div></details>
+
+      <div class="grouphd">Physics</div>
+      <details class="course"><summary>Mechanics<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Kinematics and dynamics of a point particle, systems of particles, and solid mechanics.</div></details>
+      <details class="course"><summary>Electromagnetism<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Electrostatics, magnetostatics, and induction / electromagnetic phenomena.</div></details>
+      <details class="course"><summary>Thermodynamics<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Fundamental principles, ideal gases and mixtures, phase changes and irreversible processes.</div></details>
+      <details class="course"><summary>Optics<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Geometric optics and wave optics.</div></details>
+
+      <div class="grouphd">Engineering &amp; CS</div>
+      <details class="course"><summary>Engineering Science<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Modelling and analysing complex multi-technology systems — combining mechanics, electricity and automatic control theory.</div></details>
+      <details class="course"><summary>Computer Science<span class="rt"><span class="plus">+</span></span></summary><div class="desc">Algorithmics and programming in Python.</div></details>
+      <details class="course"><summary>Research Project<span class="rt"><span class="rlab">TIPE · physics of surfing</span><span class="plus">+</span></span></summary><div class="desc">Independent supervised research project (TIPE) on the physics of surfing — modelling breaking waves and the forces that let a surfer ride them. It all ended with admission to EURECOM through the Concours Mines-Télécom.</div></details>
+
+      <div style="margin-top:48px;font-size:13px;font-weight:700;letter-spacing:.12em;opacity:.75;margin-bottom:20px">RESEARCH PROJECT · TIPE</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:21px;font-weight:800;letter-spacing:-.01em;line-height:1.15">The Physics of Surfing</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">Wave Physics</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:12px 0 14px;color:rgba(244,236,221,.85)">A two-year independent research project (TIPE) on the conditions required to surf a breaking wave. Modelled shallow-water breaking waves with Airy linear theory (and Stokes higher-order corrections), studied swell propagation and shoaling, then quantified the lift, drag and buoyancy forces on a balsa board and the surfer's balance across pitch, roll and yaw. It led to admission to EURECOM through the Concours Mines-Télécom.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="chip">Wave Physics</span><span class="chip">Fluid Mechanics</span><span class="chip">Numerical Modelling</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BAC -->
+  <section id="bac" data-era="" data-color="#0e4f47" data-year="2019–22" data-name="Lycée Pierre Mendès France" style="min-height:100vh;display:flex;align-items:center;padding:120px 40px">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <img src="./assets/logo-pmf.png" alt="Lycée Pierre Mendès France logo" style="width:78px;height:78px;object-fit:contain;flex:none;filter:brightness(0) invert(1)">
+        <div>
+          <div style="font-size:13px;font-weight:800;letter-spacing:.12em;opacity:.85">WHERE IT STARTED · 2019–22 · ÉPINAL, FRANCE</div>
+          <h2 style="font-size:clamp(30px,5vw,64px);font-weight:900;letter-spacing:-.04em;line-height:.96;margin:6px 0 0">Scientific Baccalauréat</h2>
+        </div>
+      </div>
+      <p style="font-size:clamp(16px,2vw,21px);font-weight:500;line-height:1.55;max-width:700px;margin:24px 0 0;color:rgba(244,236,221,.9);text-wrap:pretty">French high-school diploma at Lycée Pierre Mendès France, specialising in <strong style="font-weight: 800;">Mathematics</strong> (with the advanced maths option), <strong style="font-weight: 800;">Engineering Sciences</strong> and <strong style="font-weight: 800;">Physics-Chemistry</strong>&nbsp;the science foundation everything after was built on.&nbsp;</p>
+      <div style="margin-top:30px;display:flex;gap:10px;flex-wrap:wrap">
+        <span class="chip">Mathematics (Advanced)</span>
+        <span class="chip">Engineering Sciences</span>
+        <span class="chip">Physics-Chemistry</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE & LIFE -->
+  <section id="life" data-era="" data-color="#1b34ff" data-year="2022–26" data-name="Work &amp; life" style="min-height:100vh;padding:130px 40px;display:flex;align-items:center">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="font-size:13px;font-weight:800;letter-spacing:.12em;opacity:.85">OFF THE ACADEMIC PATH · 2022–26</div>
+      <h2 style="font-size:clamp(36px,7vw,86px);font-weight:900;letter-spacing:-.045em;line-height:.92;margin:8px 0 0">Work &amp; life</h2>
+      <p style="font-size:clamp(16px,2vw,21px);font-weight:500;line-height:1.55;max-width:680px;margin:22px 0 0;color:rgba(244,236,221,.9);text-wrap:pretty">The things I've done alongside the degree ; Teaching, big events in Cannes and community work back home.</p>
+
+      <div style="margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:20px;font-weight:800;line-height:1.15">Brand Ambassador · Presenter</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2026</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:10px 0 0;color:rgba(244,236,221,.85)">TikTok × Cannes Lions — presented TikTok's Seedance 2.0 collaboration to international attendees and stakeholders; bilingual host across the TikTok zones.</p>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:20px;font-weight:800;line-height:1.15">VIP Guest Relations Host</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2026</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:10px 0 0;color:rgba(244,236,221,.85)">Festival de Cannes, Plage Nespresso — high-end hospitality and orientation for VIP guests at the 79th Cannes Film Festival.</p>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:20px;font-weight:800;line-height:1.15">Private Tutor</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2024–now</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:10px 0 0;color:rgba(244,236,221,.85)">La Dream Team des Étudiants — personalised academic coaching for middle- and high-school students across core subjects.</p>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-size:20px;font-weight:800;line-height:1.15">Entrepreneurship Facilitator</div><span style="font-size:13px;font-weight:700;opacity:.7;white-space:nowrap">2022–23</span></div>
+          <p style="font-size:15px;font-weight:500;line-height:1.5;margin:10px 0 0;color:rgba(244,236,221,.85)">La Fabrique à Entreprendre — ran entrepreneurship workshops for young people in economically disadvantaged neighbourhoods.</p>
+        </div>
+      </div>
+
+      <div style="margin-top:34px;padding-top:22px;border-top:1.5px solid rgba(244,236,221,.28);display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:13px;font-weight:700;letter-spacing:.1em;opacity:.7;margin-right:6px">ALSO</span>
+        <span class="chip">Treasury Management training · La French Tech</span>
+        <span class="chip">Inclusive Management certification · Companieros × Amadeus</span>
+      </div>
+
+      <div style="margin-top:22px;padding-top:22px;border-top:1.5px solid rgba(244,236,221,.28);display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:13px;font-weight:700;letter-spacing:.1em;opacity:.7;margin-right:6px">LANGUAGES</span>
+        <span class="chip-solid">French · Native</span>
+        <span class="chip-solid">Arabic · Native</span>
+        <span class="chip">English · C1+</span>
+        <span class="chip">Spanish · Conversational</span>
+      </div>
+
+      <div style="margin-top:22px;padding-top:22px;border-top:1.5px solid rgba(244,236,221,.28);display:flex;gap:14px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:13px;font-weight:700;letter-spacing:.1em;opacity:.7;margin-right:6px">STACK</span>
+        <span class="chip">Python</span>
+        <span class="chip">C / C++</span>
+        <span class="chip">SQL</span>
+        <span class="chip">Bash</span>
+        <span class="chip">MATLAB</span>
+        <span class="chip">VBA</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PERSONAL -->
+  <section id="me" data-era="" data-color="#6b3a2a" data-year="" data-name="The rest of me" style="min-height:100vh;padding:130px 40px;display:flex;align-items:center">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="font-size:13px;font-weight:800;letter-spacing:.12em;opacity:.85">WHEN I CLOSE THE LAPTOP</div>
+      <h2 style="font-size:clamp(38px,7.5vw,92px);font-weight:900;letter-spacing:-.045em;line-height:.9;margin:8px 0 0">The rest of me</h2>
+      <p style="font-size:clamp(16px,2vw,21px);font-weight:500;line-height:1.55;max-width:680px;margin:22px 0 0;color:rgba(244,236,221,.9);text-wrap:pretty">Outside of academics, I play football regularly it keeps me competitive and moving. I sing, mostly for myself but sometimes for others. I DJ when the occasion calls for it and play chess.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" data-era="" data-color="#1b34ff" data-year="2026" data-name="Say hello" style="min-height:100vh;display:flex;align-items:center;padding:120px 40px 70px">
+    <div style="max-width:1080px;margin:0 auto;width:100%">
+      <div style="font-size:14px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:26px">Back to the present</div>
+      <div style="font-size:clamp(48px,10vw,132px);font-weight:900;letter-spacing:-.05em;line-height:.88">Get in touch.</div>
+      <a class="navlink" href="mailto:chaoui@eurecom.fr" style="display:inline-block;margin-top:42px;font-size:clamp(22px,3.4vw,40px);font-weight:700;border-bottom:3px solid rgba(244,236,221,.5);padding-bottom:6px">chaouika@tcd.ie<br></a>
+      <div style="display:flex;gap:32px;flex-wrap:wrap;margin-top:40px;font-size:16px;font-weight:600">
+        <a class="navlink" href="https://www.linkedin.com/in/ahmed-chaoui-51b429265/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        <a class="navlink" href="tel:+33635477019">+33 6 35 47 70 19</a>
+      </div>
+      <a class="navlink" href="mailto:chaoui@eurecom.fr" style="display:inline-block;margin-top:42px;font-size:clamp(22px,3.4vw,40px);font-weight:700;border-bottom:3px solid rgba(244,236,221,.5);padding-bottom:6px">chaoui@eurecom.fr<br></a><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-top:80px;padding-top:22px;border-top:1.5px solid rgba(244,236,221,.28);font-size:14px;font-weight:600;opacity:.82">
+        <div>Ahmed Chaoui™ — AI / ML Engineer</div>
+        <a class="navlink" href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount(){
+    const eras=[...document.querySelectorAll('[data-era]')];
+    if(!eras.length) return;
+    const colors=eras.map(e=>e.getAttribute('data-color'));
+    const backdrop=document.getElementById('backdrop');
+    const yearEl=document.getElementById('era-year');
+    const nameEl=document.getElementById('era-name');
+    const ticks=[...document.querySelectorAll('[data-tick]')];
+    const hex=h=>{h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];};
+    const mix=(a,b,t)=>{const A=hex(a),B=hex(b);return `rgb(${Math.round(A[0]+(B[0]-A[0])*t)},${Math.round(A[1]+(B[1]-A[1])*t)},${Math.round(A[2]+(B[2]-A[2])*t)})`;};
+    const smooth=u=>u*u*(3-2*u);
+    this._raf=0;
+    const upd=()=>{
+      this._raf=0;
+      const ref=window.scrollY+window.innerHeight*0.5;
+      const tops=eras.map(e=>e.getBoundingClientRect().top+window.scrollY);
+      let cur=0; while(cur<tops.length-1 && ref>=tops[cur+1]) cur++;
+      const band=window.innerHeight*0.45;
+      let color=colors[cur];
+      if(cur<tops.length-1){
+        const d=tops[cur+1]-ref;
+        if(d<band){ color=mix(colors[cur],colors[cur+1],smooth((band-d)/(2*band))); }
+      }
+      if(cur>0){
+        const d=ref-tops[cur];
+        if(d<band){ color=mix(colors[cur],colors[cur-1],smooth((band-d)/(2*band))); }
+      }
+      backdrop.style.background=color;
+      const el=eras[cur];
+      if(yearEl) yearEl.textContent=el.getAttribute('data-year');
+      if(nameEl) nameEl.textContent=el.getAttribute('data-name');
+      const active=Math.min(cur,ticks.length-1);
+      ticks.forEach((tk,k)=>{tk.style.opacity=k===active?'1':'.32';tk.style.transform=k===active?'scale(1.7)':'scale(1)';});
+    };
+    this._onScroll=()=>{ if(!this._raf) this._raf=requestAnimationFrame(upd); };
+    window.addEventListener('scroll',this._onScroll,{passive:true});
+    window.addEventListener('resize',this._onScroll);
+    upd();
+    const hero=document.getElementById('top');
+    const fi=document.getElementById('face-inner');
+    if(hero&&fi){
+      this._mm=e=>{const r=hero.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const dx=(e.clientX-cx)/r.width,dy=(e.clientY-cy)/r.height;fi.style.transform=`rotateY(${dx*18}deg) rotateX(${-dy*18}deg)`;};
+      this._ml=()=>{fi.style.transform='rotateY(0deg) rotateX(0deg)';};
+      hero.addEventListener('mousemove',this._mm);
+      hero.addEventListener('mouseleave',this._ml);
+      this._hero=hero;
+    }
+  }
+  renderVals(){ return {}; }
+}
+</script>
+</body>
+</html>
