@@ -60,6 +60,19 @@
   details.course .desc{padding:0 2px 20px;font-size:15.5px;font-weight:500;line-height:1.62;color:rgba(244,236,221,.84);max-width:760px}
   details.course .desc b{font-weight:800;color:#f4ecdd}
   details.course:hover>summary{opacity:.82}
+  .wave-text {
+    background-image: linear-gradient(-45deg, #f4ecdd 0%, rgba(244, 236, 221, 0.4) 30%, #f4ecdd 50%, rgba(244, 236, 221, 0.4) 70%, #f4ecdd 100%);
+    background-size: 200% 200%;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: liquid-wave 6s ease-in-out infinite;
+  }
+  @keyframes liquid-wave {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
   .badge-metric{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;background:rgba(244,236,221,.18);color:#f4ecdd;padding:4px 10px;border-radius:6px;border:1px solid rgba(244,236,221,.3)}
 
   .glow-text { text-shadow: 0 0 12px rgba(244,236,221,0.5), 0 0 24px rgba(244,236,221,0.3); }
@@ -108,7 +121,7 @@
       <div id="face-tag" style="position:absolute;top:6px;right:-56px;background:#b48eae;color:#111;font-size:13px;font-weight:800;padding:7px 12px;border-radius:100px 100px 100px 2px">that's me</div>
     </div>
 
-    <div style="font-size:clamp(62px,13vw,150px);font-weight:900;letter-spacing:-.05em;line-height:.82;text-align:center;margin-top:6px">AI / ML<br><span style="font-style:italic;font-weight:800">Engineer</span></div>
+    <div class="wave-text" style="font-size:clamp(62px,13vw,150px);font-weight:900;letter-spacing:-.05em;line-height:.82;text-align:center;margin-top:6px">AI / ML<br><span style="font-style:italic;font-weight:800">Engineer</span></div>
     <p class="reveal" style="max-width:620px;text-align:center;font-size:clamp(15px,2vw,19px);font-weight:500;line-height:1.5;margin:28px 0 0;color:rgba(244,236,221,.88);text-wrap:pretty">Graduate Computer Science student specialising in Machine Learning, Deep Learning, and Data Science. Splitting time between France and Ireland.</p>
     <a href="#trinity" style="margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,236,221,.7)"><span style="font-size: 22px; animation: 1.7s ease-in-out 0s infinite normal none running cue;">↓</span></a>
   </section>
