@@ -78,18 +78,32 @@
   .glow-text { text-shadow: 0 0 12px rgba(244,236,221,0.5), 0 0 24px rgba(244,236,221,0.3); }
   .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
   .reveal.active { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    .navbar { padding: 20px 20px !important; flex-direction: column !important; gap: 16px !important; }
+    .nav-links { flex-wrap: wrap; justify-content: center; gap: 12px !important; }
+    section { padding: 80px 20px !important; }
+    #top { padding: 120px 20px 60px !important; }
+    .fixed-left, .fixed-right { display: none !important; }
+    #face-img { width: 220px !important; }
+    #face-tag { right: -10px !important; }
+    .hero-title { font-size: clamp(48px, 12vw, 80px) !important; }
+    details.course > summary { font-size: 15px !important; gap: 8px !important; }
+    details.course .rlab { display: none !important; }
+  }
 </style>
+
 </helmet>
 
 <canvas id="particles" style="position:fixed;inset:0;z-index:1;pointer-events:none;"></canvas>
 <div id="backdrop" style="position:fixed;inset:0;background:#1b34ff;z-index:0;transition:background .12s linear"></div>
 
-<div style="position:fixed;left:26px;bottom:24px;z-index:30;pointer-events:none;line-height:1">
+<div class="fixed-left" style="position:fixed;left:26px;bottom:24px;z-index:30;pointer-events:none;line-height:1">
   <div id="era-year" style="font-size:15px;font-weight:800;letter-spacing:.02em;color:#b48eae">2026</div>
   <div id="era-name" style="font-size:12px;font-weight:600;color:rgba(244,236,221,.7);margin-top:3px">Present</div>
 </div>
 
-<div style="position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:16px;align-items:center;pointer-events:none">
+<div class="fixed-right" style="position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;gap:16px;align-items:center;pointer-events:none">
   <span data-tick="" class="rail-dot"></span>
   <span data-tick="" class="rail-dot"></span>
   <span data-tick="" class="rail-dot"></span>
@@ -103,9 +117,9 @@
 
   <!-- HERO / PRESENT -->
   <section id="top" data-era="" data-color="#1b34ff" data-year="2026" data-name="Present" style="position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:96px 32px 60px">
-    <nav style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 40px;z-index:5">
+    <nav class="navbar" style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:30px 40px;z-index:5">
       <div style="font-size:21px;font-weight:800;letter-spacing:-.02em">Ahmed Chaoui<span style="font-size: 11px; vertical-align: super; font-weight: 700;">™</span></div>
-      <div style="display:flex;gap:26px;font-size:14px;font-weight:600">
+      <div class="nav-links" style="display:flex;gap:26px;font-size:14px;font-weight:600">
         <a class="navlink" href="#trinity">Trinity College</a>
         <a class="navlink" href="#eurecom">EURECOM</a>
         <a class="navlink" href="#projects">Projects</a>
@@ -121,7 +135,7 @@
       <div id="face-tag" style="position:absolute;top:6px;right:-56px;background:#b48eae;color:#111;font-size:13px;font-weight:800;padding:7px 12px;border-radius:100px 100px 100px 2px">that's me</div>
     </div>
 
-    <div style="font-size:clamp(62px,13vw,150px);font-weight:900;letter-spacing:-.05em;line-height:.82;text-align:center;margin-top:6px">AI / ML<br><span style="font-style:italic;font-weight:800">Engineer</span></div>
+    <div class="hero-title" style="font-size:clamp(62px,13vw,150px);font-weight:900;letter-spacing:-.05em;line-height:.82;text-align:center;margin-top:6px">AI / ML<br><span style="font-style:italic;font-weight:800">Engineer</span></div>
     <p class="reveal" style="max-width:620px;text-align:center;font-size:clamp(15px,2vw,19px);font-weight:500;line-height:1.5;margin:28px 0 0;color:rgba(244,236,221,.88);text-wrap:pretty">Graduate Computer Science student specialising in Machine Learning, Deep Learning, and Data Science. Splitting time between France and Ireland.</p>
     <a href="#trinity" style="margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,236,221,.7)"><span style="font-size: 22px; animation: 1.7s ease-in-out 0s infinite normal none running cue;">↓</span></a>
   </section>
