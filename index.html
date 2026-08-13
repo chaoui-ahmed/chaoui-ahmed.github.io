@@ -301,6 +301,12 @@
     returned −32.1% actual — and Kelly sizes exactly those bets largest.
   </div>
 
+  <div class="note">
+    This is the <em>prediction</em> approach, and it failed. <a href="#arb">Project 05</a>
+    attacks the same market without forecasting anything — by finding two bookmakers who
+    disagree with each other — and that one works.
+  </div>
+
   <div class="stack">
     <span>PyTorch</span><span>XLM-RoBERTa</span><span>scikit-learn</span><span>Elo</span>
     <span>Kelly criterion</span><span>pytest</span>
@@ -337,6 +343,10 @@
   <div class="stack">
     <span>LLM fine-tuning</span><span>RAG</span><span>Dialogflow CX</span><span>Python</span>
   </div>
+  <div class="links">
+    <a href="https://www.epinal.fr">City of Épinal →</a>
+  </div>
+  <p class="fnote" style="margin-top:14px">Internal municipal systems — source not public.</p>
 </article>
 
 <!-- ─────────────────────────────────────────── -->
@@ -346,11 +356,29 @@
   <p class="sub">Finding prices that disagree with each other, rather than trying to out-predict them.</p>
 
   <div class="block">
+    <h3>How this differs from project 03</h3>
+    <p>These two look like the same project and are opposites. Project 03 asks whether I can
+    <em>forecast</em> a match better than the bookmaker — which means beating every sharp
+    bettor whose money moves the line, and it failed. This one asks nothing about the match
+    at all.</p>
+  </div>
+
+  <div class="result">
+    <table>
+      <tr><th></th><th>03 — Match prediction</th><th>05 — Arbitrage</th></tr>
+      <tr><td>Question</td><td>Will my model beat the bookmaker's?</td><td>Do two bookmakers disagree with each other?</td></tr>
+      <tr><td>Needs a forecast</td><td>Yes</td><td class="hi">No</td></tr>
+      <tr><td>Risk</td><td>The match goes the other way</td><td class="hi">None — every outcome is backed</td></tr>
+      <tr><td>Result</td><td class="tw">Parity with the market, never ahead</td><td class="hi">Structurally positive</td></tr>
+    </table>
+  </div>
+
+  <div class="block">
     <h3>The idea</h3>
-    <p>Beating a bookmaker's model is close to impossible (see project 03). Beating the
-    <em>inconsistency between</em> bookmakers is a different problem: when two books price
-    opposite outcomes generously enough, backing both locks in a return regardless of
-    result. No prediction required — it is a search problem over live odds.</p>
+    <p>When two books price opposite outcomes generously enough, backing every outcome across
+    both locks in a return regardless of who wins. The profit comes from the disagreement
+    between two prices, not from knowing which is right — so it is a search problem over live
+    odds, not a modelling one.</p>
   </div>
 
   <div class="block">
@@ -381,6 +409,7 @@
   <div class="stack">
     <span>Python</span><span>Streamlit</span><span>Odds APIs</span><span>pandas</span>
   </div>
+  <p class="fnote" style="margin-top:14px">Source not yet published.</p>
 </article>
 
 <footer>
