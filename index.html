@@ -120,7 +120,6 @@
     <li><a href="#uncertainty"><span class="t">Predictive Uncertainty via Deep Ensembles</span><span class="d">calibration · reproduction</span></a></li>
     <li><a href="#sports"><span class="t">Multimodal Match Prediction & Market Benchmarking</span><span class="d">modelling · evaluation</span></a></li>
     <li><a href="#rag"><span class="t">Municipal LLM & RAG Assistant</span><span class="d">applied · internship</span></a></li>
-    <li><a href="#arb"><span class="t">Cross-Bookmaker Arbitrage Scanner</span><span class="d">data engineering</span></a></li>
   </ol>
 </nav>
 
@@ -301,12 +300,6 @@
     returned −32.1% actual — and Kelly sizes exactly those bets largest.
   </div>
 
-  <div class="note">
-    This is the <em>prediction</em> approach, and it failed. <a href="#arb">Project 05</a>
-    attacks the same market without forecasting anything — by finding two bookmakers who
-    disagree with each other — and that one works.
-  </div>
-
   <div class="stack">
     <span>PyTorch</span><span>XLM-RoBERTa</span><span>scikit-learn</span><span>Elo</span>
     <span>Kelly criterion</span><span>pytest</span>
@@ -349,68 +342,6 @@
   <p class="fnote" style="margin-top:14px">Internal municipal systems — source not public.</p>
 </article>
 
-<!-- ─────────────────────────────────────────── -->
-<article id="arb">
-  <div class="num">05</div>
-  <h2>Cross-Bookmaker Arbitrage Scanner</h2>
-  <p class="sub">Finding prices that disagree with each other, rather than trying to out-predict them.</p>
-
-  <div class="block">
-    <h3>How this differs from project 03</h3>
-    <p>These two look like the same project and are opposites. Project 03 asks whether I can
-    <em>forecast</em> a match better than the bookmaker — which means beating every sharp
-    bettor whose money moves the line, and it failed. This one asks nothing about the match
-    at all.</p>
-  </div>
-
-  <div class="result">
-    <table>
-      <tr><th></th><th>03 — Match prediction</th><th>05 — Arbitrage</th></tr>
-      <tr><td>Question</td><td>Will my model beat the bookmaker's?</td><td>Do two bookmakers disagree with each other?</td></tr>
-      <tr><td>Needs a forecast</td><td>Yes</td><td class="hi">No</td></tr>
-      <tr><td>Risk</td><td>The match goes the other way</td><td class="hi">None — every outcome is backed</td></tr>
-      <tr><td>Result</td><td class="tw">Parity with the market, never ahead</td><td class="hi">Structurally positive</td></tr>
-    </table>
-  </div>
-
-  <div class="block">
-    <h3>The idea</h3>
-    <p>When two books price opposite outcomes generously enough, backing every outcome across
-    both locks in a return regardless of who wins. The profit comes from the disagreement
-    between two prices, not from knowing which is right — so it is a search problem over live
-    odds, not a modelling one.</p>
-  </div>
-
-  <div class="block">
-    <h3>What I built</h3>
-    <p>A scanner ingesting live odds across books and markets, detecting arbitrage,
-    computing the stake split per leg, and surfacing opportunities ranked by margin in a
-    Streamlit dashboard.</p>
-  </div>
-
-  <div class="result">
-    <h3>Result — 1,639 opportunities scanned</h3>
-    <table>
-      <tr><th>Metric</th><th>Value</th></tr>
-      <tr><td>Median theoretical margin</td><td class="n hi">3.61%</td></tr>
-      <tr><td>Mean margin</td><td class="n">4.52%</td></tr>
-      <tr><td>Above 2%</td><td class="n">68.3%</td></tr>
-      <tr><td>Range</td><td class="n">0.50% – 14.98%</td></tr>
-    </table>
-  </div>
-
-  <div class="note">
-    These are <strong>pre-execution</strong> margins. Realised return is bounded by stake
-    limits, price movement between placing the two legs, and account restrictions — which is
-    where arbitrage actually dies in practice. The number measures the opportunity, not the
-    outcome.
-  </div>
-
-  <div class="stack">
-    <span>Python</span><span>Streamlit</span><span>Odds APIs</span><span>pandas</span>
-  </div>
-  <p class="fnote" style="margin-top:14px">Source not yet published.</p>
-</article>
 
 <footer>
   <div>Built as a static page. Source on

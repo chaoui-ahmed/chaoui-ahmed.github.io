@@ -14,7 +14,6 @@ reproducible from committed code in the linked repository.
 - **Multimodal Match Prediction & Market Benchmarking** — parity with the bookmaker closing
   line, validated by closing-line value against a random control
 - **Municipal LLM & RAG Assistant** — internship work at DGSITG, City of Épinal
-- **Cross-Bookmaker Arbitrage Scanner** — live odds ingestion and arbitrage detection
 
 Separate from [ahmedchaoui.com](https://ahmedchaoui.com), which covers background and
 education.
