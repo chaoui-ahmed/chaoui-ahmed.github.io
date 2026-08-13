@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ahmed Chaoui — Projects</title>
+<meta name="description" content="Technical write-ups of machine learning and systems projects: LLM inference efficiency, predictive uncertainty, multimodal modelling and market benchmarking.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
+<style>
+  :root{
+    --bg:#0b0d10; --panel:#111419; --line:#1e232b; --line2:#2a313b;
+    --fg:#e8eaed; --dim:#9aa4b2; --dim2:#6b7684;
+    --accent:#5b9dff; --accent2:#7ee0c0; --warn:#f0b429;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#fbfbfa;--panel:#fff;--line:#e6e6e3;--line2:#d3d3cf;
+          --fg:#16181d;--dim:#565d68;--dim2:#858c96;--accent:#1f5fd0;--accent2:#0f8a6a;}
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--fg);font-family:var(--sans);
+       line-height:1.65;-webkit-font-smoothing:antialiased;font-size:16px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  /* header */
+  header{padding:80px 0 44px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+           text-transform:uppercase;color:var(--dim2)}
+  h1{font-size:clamp(30px,5.2vw,46px);letter-spacing:-.025em;line-height:1.1;
+     margin:14px 0 16px;font-weight:650}
+  .lede{color:var(--dim);font-size:17px;max-width:62ch}
+  .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 18px;
+        font-family:var(--mono);font-size:13px;color:var(--dim2)}
+  .meta a{color:var(--dim)}
+
+  /* index */
+  nav.toc{padding:30px 0 8px;border-bottom:1px solid var(--line)}
+  nav.toc ol{list-style:none;counter-reset:t}
+  nav.toc li{counter-increment:t;border-bottom:1px solid var(--line);}
+  nav.toc li:last-child{border-bottom:none}
+  nav.toc a{display:flex;gap:16px;align-items:baseline;padding:13px 2px;color:var(--fg)}
+  nav.toc a:hover{text-decoration:none;color:var(--accent)}
+  nav.toc a::before{content:counter(t,decimal-leading-zero);font-family:var(--mono);
+                    font-size:12px;color:var(--dim2);flex:none}
+  nav.toc .t{font-weight:550}
+  nav.toc .d{color:var(--dim2);font-size:14px;margin-left:auto;text-align:right}
+  @media(max-width:600px){nav.toc .d{display:none}}
+
+  /* project */
+  article{padding:64px 0;border-bottom:1px solid var(--line)}
+  article > .num{font-family:var(--mono);font-size:12px;color:var(--dim2);
+                 letter-spacing:.12em}
+  h2{font-size:clamp(23px,3.6vw,31px);letter-spacing:-.02em;line-height:1.2;
+     margin:10px 0 6px;font-weight:620}
+  .sub{color:var(--dim);font-size:16px;margin-bottom:26px;max-width:64ch}
+
+  .block{margin:24px 0}
+  .block h3{font-family:var(--mono);font-size:11.5px;letter-spacing:.13em;
+            text-transform:uppercase;color:var(--dim2);font-weight:500;margin-bottom:8px}
+  .block p{color:var(--fg);max-width:66ch}
+  .block p + p{margin-top:11px}
+
+  /* result callout */
+  .result{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+          padding:20px 22px;margin:26px 0}
+  .result h3{margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:8px 10px 8px 0;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;
+     text-transform:uppercase;color:var(--dim2);font-weight:500}
+  tr:last-child td{border-bottom:none}
+  td.n{font-family:var(--mono);white-space:nowrap}
+  .hi{color:var(--accent2);font-weight:600}
+  .tw{color:var(--warn)}
+
+  .note{border-left:2px solid var(--line2);padding-left:15px;color:var(--dim);
+        font-size:14.5px;margin:22px 0;max-width:66ch}
+  .note strong{color:var(--fg);font-weight:600}
+
+  .stack{display:flex;flex-wrap:wrap;gap:7px;margin:24px 0 18px}
+  .stack span{font-family:var(--mono);font-size:12px;color:var(--dim);
+              border:1px solid var(--line2);border-radius:20px;padding:3.5px 11px}
+  .links{display:flex;flex-wrap:wrap;gap:9px}
+  .links a{font-family:var(--mono);font-size:13px;border:1px solid var(--line2);
+           border-radius:7px;padding:7px 14px;color:var(--fg);transition:.15s}
+  .links a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+
+  footer{padding:56px 0 90px;color:var(--dim2);font-size:14px}
+  footer a{color:var(--dim)}
+  .fnote{font-family:var(--mono);font-size:12.5px;margin-top:14px;color:var(--dim2);max-width:64ch;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Ahmed Chaoui Kouraichi</div>
+  <h1>Projects</h1>
+  <p class="lede">
+    Write-ups of what I built, why, and what the results actually showed — including
+    the ones that didn't work. Each links to a repository where every number is
+    reproducible from committed code.
+  </p>
+  <div class="meta">
+    <span>MSc Data Science, Trinity College Dublin</span>
+    <span>MEng, EURECOM</span>
+    <a href="https://ahmedchaoui.com">ahmedchaoui.com</a>
+    <a href="https://github.com/chaoui-ahmed">github.com/chaoui-ahmed</a>
+    <a href="mailto:chaoui@eurecom.fr">chaoui@eurecom.fr</a>
+  </div>
+</header>
+
+<nav class="toc">
+  <ol>
+    <li><a href="#kv"><span class="t">KV-Cache Compression for LLM Inference</span><span class="d">systems · benchmarking</span></a></li>
+    <li><a href="#uncertainty"><span class="t">Predictive Uncertainty via Deep Ensembles</span><span class="d">calibration · reproduction</span></a></li>
+    <li><a href="#sports"><span class="t">Multimodal Match Prediction & Market Benchmarking</span><span class="d">modelling · evaluation</span></a></li>
+    <li><a href="#rag"><span class="t">Municipal LLM & RAG Assistant</span><span class="d">applied · internship</span></a></li>
+    <li><a href="#arb"><span class="t">Cross-Bookmaker Arbitrage Scanner</span><span class="d">data engineering</span></a></li>
+  </ol>
+</nav>
+
+<!-- ─────────────────────────────────────────── -->
+<article id="kv">
+  <div class="num">01</div>
+  <h2>KV-Cache Compression for LLM Inference</h2>
+  <p class="sub">Which cache-compression method should an LLM-native data system use — and does the answer depend on the workload?</p>
+
+  <div class="block">
+    <h3>The problem</h3>
+    <p>Systems like Palimpzest and Lotus treat an LLM as a semantic operator: the same
+    document gets filtered, then classified, then have fields extracted from it. Each
+    operator re-sends the full document through the model, recomputing an identical
+    context every time. Long documents and images make that expensive.</p>
+    <p>A compressed KV cache can be built once per document and reused across every
+    later query — but only if compression preserves what those queries need.</p>
+  </div>
+
+  <div class="block">
+    <h3>What I built</h3>
+    <p>A benchmark harness comparing three methods on the same footing via NVIDIA's
+    <code>kvpress</code>: <strong>Expected Attention</strong> and <strong>KVzip</strong>
+    (query-agnostic, so the cache is reusable) against <strong>Finch</strong>
+    (query-dependent, so it specialises per request but cannot be reused).</p>
+    <p>Three datasets — 1,000 Rotten Tomatoes reviews, 1,000 Enron emails, and 63
+    paintings for the vision-language case — each with 10 filter and 10 extraction
+    queries, across four models and compression ratios up to 80% of the cache evicted.</p>
+  </div>
+
+  <div class="result">
+    <h3>Result — no universal winner</h3>
+    <table>
+      <tr><th>Dataset / model</th><th>Best method</th><th>Type</th><th>Macro F1</th></tr>
+      <tr><td>Movie / Llama-3.2-1B</td><td>KVzip</td><td>query-agnostic</td><td class="n">0.279</td></tr>
+      <tr><td>Email / Qwen2.5-0.5B</td><td>Expected Attention</td><td>query-agnostic</td><td class="n">0.273</td></tr>
+      <tr><td>Artwork / LLaVA-Next-8B</td><td>Finch</td><td>query-dependent</td><td class="n hi">0.571</td></tr>
+      <tr><td>Artwork / Qwen3-VL-2B</td><td>Finch</td><td>query-dependent</td><td class="n hi">0.484</td></tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <p>The ranking flips with the modality. Query-agnostic methods take every text cell;
+    the query-dependent method takes both vision-language cells by a wide margin. Image
+    patch tokens appear to carry far more query-specific redundancy, which a method that
+    sees the query can exploit and a reusable one cannot.</p>
+    <p>Two further findings: filter-style predicates survive 80% cache eviction with no
+    measurable loss while extraction degrades steadily — so a real system should pick the
+    ratio per operator, not globally. And Expected Attention runs
+    <strong class="hi">1.37× faster</strong> than KVzip (2.94 s vs 4.03 s mean, n=80 paired
+    runs), because it scores in a single prefill pass where KVzip needs extra
+    context-reconstruction passes.</p>
+  </div>
+
+  <div class="note">
+    <strong>A caveat I'd flag in review:</strong> filter and extraction metrics are disjoint
+    here — F1 exists only for filter queries, accuracy only for extraction — so there is no
+    single "system accuracy" number, and I don't quote one. Precision is also exactly 1.0
+    across all filter rows, meaning that F1 tracks recall alone.
+  </div>
+
+  <div class="stack">
+    <span>PyTorch</span><span>kvpress</span><span>Transformers</span><span>Llama-3.2</span>
+    <span>Qwen2.5</span><span>LLaVA-Next</span><span>Qwen3-VL</span>
+  </div>
+  <div class="links">
+    <a href="https://github.com/chaoui-ahmed/kv-cache-compression-benchmark">Repository →</a>
+    <a href="https://github.com/chaoui-ahmed/kv-cache-compression-benchmark/blob/main/notebooks/results_walkthrough.ipynb">Results notebook →</a>
+    <a href="https://github.com/chaoui-ahmed/kv-cache-compression-benchmark/blob/main/docs/report.pdf">Report (PDF) →</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────────────────── -->
+<article id="uncertainty">
+  <div class="num">02</div>
+  <h2>Predictive Uncertainty via Deep Ensembles</h2>
+  <p class="sub">Can an ensemble of plain networks — no Bayesian machinery — tell you when it doesn't know?</p>
+
+  <div class="block">
+    <h3>The problem</h3>
+    <p>A model deployed anywhere consequential needs to signal its own uncertainty. The
+    Bayesian route is principled but expensive. Lakshminarayanan et al. (2017) argued that
+    simply ensembling independently-initialised networks gets you most of the way. I
+    reimplemented it from scratch in JAX to see which parts hold.</p>
+  </div>
+
+  <div class="block">
+    <h3>What I tested</h3>
+    <p>Three claims: that ensembles give calibrated predictive distributions on regression,
+    that they flag out-of-distribution inputs, and that they stay trustworthy under
+    adversarial perturbation. UCI regression across 20 random splits, then MNIST → notMNIST
+    OOD detection with 10-network ensembles, with and without adversarial training.</p>
+  </div>
+
+  <div class="result">
+    <h3>Result — two of three reproduce</h3>
+    <table>
+      <tr><th>Claim</th><th>Outcome</th></tr>
+      <tr><td>Calibrated regression uncertainty</td><td class="hi">reproduces</td></tr>
+      <tr><td>OOD detection improves with ensemble size</td><td class="hi">reproduces</td></tr>
+      <tr><td>Confidence stays meaningful under attack</td><td class="tw">does not hold</td></tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <p>Under FGSM attack at ε = 0.3, accuracy restricted to high-confidence predictions is
+    essentially <strong>flat</strong> — 7.4% at any threshold for the plain ensemble — and
+    for the adversarially-trained one it <em>declines</em> past τ = 0.5, from 36.6% down to
+    26.2%. Filtering on confidence buys you nothing on adversarial inputs; the most
+    confident predictions are among the least reliable.</p>
+    <p>What does hold is robustness: adversarial training lifts accuracy under attack from
+    <strong class="hi">7.4% to 35.3%</strong> at no cost on clean data (98.64% → 98.76%
+    MNIST test accuracy).</p>
+  </div>
+
+  <div class="note">
+    <strong>Why this one taught me the most:</strong> the original figure in this project was
+    generated by a hardcoded curve rather than measured accuracy. Finding that, re-running
+    the experiment properly, and discovering the conclusion inverted is the reason every
+    figure in my repositories is now written from a persisted <code>results/*.json</code>
+    and asserted in CI.
+  </div>
+
+  <div class="stack">
+    <span>JAX</span><span>NumPy</span><span>scikit-learn</span><span>FGSM</span><span>Deep Ensembles</span>
+  </div>
+  <div class="links">
+    <a href="https://github.com/chaoui-ahmed/bayesian-deep-ensembles">Repository →</a>
+    <a href="https://arxiv.org/abs/1612.01474">Original paper →</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────────────────── -->
+<article id="sports">
+  <div class="num">03</div>
+  <h2>Multimodal Match Prediction & Market Benchmarking</h2>
+  <p class="sub">How close can a model built from public data get to a bookmaker's closing line — and is close enough to profit?</p>
+
+  <div class="block">
+    <h3>What I built</h3>
+    <p>A late-fusion architecture: an LSTM over rolling match statistics (form, goals,
+    shots on target, Elo, rest days) fused with 768-dimensional XLM-RoBERTa embeddings of
+    pre-match news. Splits are strictly chronological and every feature is computed only
+    from matches already played — look-ahead bugs are silent and flatter results, so the
+    repository asserts their absence in tests.</p>
+    <p>Scaled to <strong>37,514 matches across 14 European leagues</strong>, with the
+    de-vigged opening price supplied as an input feature. That last choice makes the
+    evaluation decisive: a model handed the market's own probabilities can only improve on
+    them using information the market lacks.</p>
+  </div>
+
+  <div class="result">
+    <h3>Result — parity with the market, not an edge</h3>
+    <table>
+      <tr><th>Predictor</th><th>Log-loss</th><th>Note</th></tr>
+      <tr><td>Uniform prior</td><td class="n">1.0986</td><td>floor</td></tr>
+      <tr><td>This model</td><td class="n hi">1.0016</td><td>5,429 held-out matches</td></tr>
+      <tr><td>Bookmaker closing line, de-vigged</td><td class="n">1.0006</td><td>still ahead</td></tr>
+    </table>
+  </div>
+
+  <div class="block">
+    <p>The gap to the closing line narrowed from 0.0296 to <strong>0.0010</strong> — parity —
+    but never turned negative. Given the price plus 22 features and 26,674 training matches,
+    the model converges to reproducing the market. The conclusion is that this feature set
+    carries no information the price has not already absorbed.</p>
+    <p>I validated that with a <strong>closing-line-value test</strong> against Pinnacle's
+    close, the standard edge check. Model-selected bets returned −3.52% CLV versus −3.46%
+    for a random-selection control: statistically indistinguishable from picking at random.
+    The control is the load-bearing part — without it the raw number looks like signal.</p>
+  </div>
+
+  <div class="note">
+    <strong>Why value betting loses, mechanically:</strong> edge is <code>p·odds − 1</code>, so a
+    fixed absolute error in <code>p</code> scales with the odds. A three-point overestimate
+    implies a +20% edge at odds 15 but +2% at odds 1.5. Selecting on maximum edge therefore
+    selects wherever your estimates are most inflated — claimed +28.6% EV at odds 10+
+    returned −32.1% actual — and Kelly sizes exactly those bets largest.
+  </div>
+
+  <div class="stack">
+    <span>PyTorch</span><span>XLM-RoBERTa</span><span>scikit-learn</span><span>Elo</span>
+    <span>Kelly criterion</span><span>pytest</span>
+  </div>
+  <div class="links">
+    <a href="https://github.com/chaoui-ahmed/multimodal-sports-prediction">Repository →</a>
+    <a href="https://github.com/chaoui-ahmed/multimodal-sports-prediction/blob/main/results/strategy_evaluation.json">Full results (JSON) →</a>
+  </div>
+</article>
+
+<!-- ─────────────────────────────────────────── -->
+<article id="rag">
+  <div class="num">04</div>
+  <h2>Municipal LLM & RAG Assistant</h2>
+  <p class="sub">AI Engineering intern, DGSITG — City of Épinal · June–August 2025</p>
+
+  <div class="block">
+    <h3>The problem</h3>
+    <p>A city administration answers the same questions repeatedly — opening hours,
+    document requirements, procedure steps — with staff time going to queries already
+    answered somewhere in municipal documentation.</p>
+  </div>
+
+  <div class="block">
+    <h3>What I built</h3>
+    <p>An internal assistant over municipal data: an open-weight LLM fine-tuned on the
+    city's own corpus, with a retrieval-augmented generation layer connected to city
+    databases so answers cite live records rather than memorised training data. Also
+    deployed a public Dialogflow CX assistant on epinal.fr.</p>
+    <p>Result: a <strong class="hi">37% reduction</strong> in support tickets requiring
+    manual handling.</p>
+  </div>
+
+  <div class="stack">
+    <span>LLM fine-tuning</span><span>RAG</span><span>Dialogflow CX</span><span>Python</span>
+  </div>
+</article>
+
+<!-- ─────────────────────────────────────────── -->
+<article id="arb">
+  <div class="num">05</div>
+  <h2>Cross-Bookmaker Arbitrage Scanner</h2>
+  <p class="sub">Finding prices that disagree with each other, rather than trying to out-predict them.</p>
+
+  <div class="block">
+    <h3>The idea</h3>
+    <p>Beating a bookmaker's model is close to impossible (see project 03). Beating the
+    <em>inconsistency between</em> bookmakers is a different problem: when two books price
+    opposite outcomes generously enough, backing both locks in a return regardless of
+    result. No prediction required — it is a search problem over live odds.</p>
+  </div>
+
+  <div class="block">
+    <h3>What I built</h3>
+    <p>A scanner ingesting live odds across books and markets, detecting arbitrage,
+    computing the stake split per leg, and surfacing opportunities ranked by margin in a
+    Streamlit dashboard.</p>
+  </div>
+
+  <div class="result">
+    <h3>Result — 1,639 opportunities scanned</h3>
+    <table>
+      <tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Median theoretical margin</td><td class="n hi">3.61%</td></tr>
+      <tr><td>Mean margin</td><td class="n">4.52%</td></tr>
+      <tr><td>Above 2%</td><td class="n">68.3%</td></tr>
+      <tr><td>Range</td><td class="n">0.50% – 14.98%</td></tr>
+    </table>
+  </div>
+
+  <div class="note">
+    These are <strong>pre-execution</strong> margins. Realised return is bounded by stake
+    limits, price movement between placing the two legs, and account restrictions — which is
+    where arbitrage actually dies in practice. The number measures the opportunity, not the
+    outcome.
+  </div>
+
+  <div class="stack">
+    <span>Python</span><span>Streamlit</span><span>Odds APIs</span><span>pandas</span>
+  </div>
+</article>
+
+<footer>
+  <div>Built as a static page. Source on
+    <a href="https://github.com/chaoui-ahmed/chaoui-ahmed.github.io">GitHub</a>.
+    More at <a href="https://ahmedchaoui.com">ahmedchaoui.com</a>.
+  </div>
+  <div class="fnote">
+    Every figure quoted here is reproducible from committed code in the linked repository.
+    Where a result was negative or a claim didn't survive re-testing, it is stated as such.
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
