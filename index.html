@@ -48,6 +48,9 @@
                     font-size:12px;color:var(--dim2);flex:none}
   nav.toc .t{font-weight:550}
   nav.toc .d{color:var(--dim2);font-size:14px;margin-left:auto;text-align:right}
+  nav.toc li.subitem{counter-increment:none}
+  nav.toc li.subitem > a::before{content:attr(data-n)}
+  nav.toc li.subitem > a{padding-left:0}
   @media(max-width:600px){nav.toc .d{display:none}}
 
   /* project */
@@ -119,7 +122,8 @@
     <li><a href="#kv"><span class="t">KV-Cache Compression for LLM Inference</span><span class="d">systems · benchmarking</span></a></li>
     <li><a href="#uncertainty"><span class="t">Predictive Uncertainty via Deep Ensembles</span><span class="d">calibration · reproduction</span></a></li>
     <li><a href="#sports"><span class="t">Multimodal Match Prediction & Market Benchmarking</span><span class="d">modelling · evaluation</span></a></li>
-    <li><a href="#rag"><span class="t">Two AI Assistants for a City Administration</span><span class="d">applied · internship</span></a></li>
+    <li class="subitem"><a href="#rag-internal" data-n="04.1"><span class="t">Internal Assistant for Support Tickets</span><span class="d">applied · on-premises</span></a></li>
+    <li class="subitem"><a href="#rag-public" data-n="04.2"><span class="t">Public Assistant on epinal.fr</span><span class="d">applied · cloud</span></a></li>
   </ol>
 </nav>
 
@@ -311,26 +315,25 @@
 </article>
 
 <!-- ─────────────────────────────────────────── -->
-<article id="rag">
-  <div class="num">04</div>
-  <h2>Two AI Assistants for a City Administration</h2>
+<article id="rag-internal">
+  <div class="num">04.1</div>
+  <h2>Internal Assistant for Support Tickets</h2>
   <p class="sub">AI Engineering intern, DGSITN — Ville d'Épinal · summer 2025</p>
 
   <div class="block">
-    <h3>Why two systems, not one</h3>
-    <p>The city needed an assistant for staff handling support tickets, and one for
-    citizens on the public website. They look like the same product, but the data behind
-    them is not comparable — and that difference decided the architecture.</p>
-    <p>Internal ticket data and municipal documents cannot leave the city's own
-    infrastructure: digital sovereignty here is a requirement, not a preference, and it
-    rules out every hosted API. Public information on the website carries no such
-    constraint, so it could use managed cloud services and be built for scale and uptime
-    instead. So I built two.</p>
+    <h3>Why this one had to be built on-premises</h3>
+    <p>The internship produced two assistants: this one for municipal staff handling
+    support tickets, and <a href="#rag-public">a public one for citizens</a>. They look like
+    the same product, but the data behind them is not comparable — and that difference
+    decided the architecture of each.</p>
+    <p>Support tickets and internal documents cannot leave the city's own infrastructure.
+    Digital sovereignty here is a requirement, not a preference, and it rules out every
+    hosted API. So this system runs entirely locally.</p>
   </div>
 
   <div class="result">
     <table>
-      <tr><th></th><th>Internal assistant</th><th>Public assistant</th></tr>
+      <tr><th></th><th>04.1 — Internal</th><th>04.2 — Public</th></tr>
       <tr><td>Users</td><td>Municipal staff</td><td>Citizens on epinal.fr</td></tr>
       <tr><td>Data</td><td>Support tickets, internal documents</td><td>Public municipal information</td></tr>
       <tr><td>Constraint</td><td class="hi">Must stay on-premises</td><td>Scale and availability</td></tr>
@@ -339,10 +342,9 @@
   </div>
 
   <div class="block">
-    <h3>System 1 — Internal assistant, fully local</h3>
+    <h3>Retrieval over the internal document base</h3>
     <p>An open-weight model served through Ollama and fine-tuned on municipal data, so it
-    answered in the register the city actually uses rather than relying on prompting alone.
-    Retrieval runs over the internal document base.</p>
+    answered in the register the city actually uses rather than relying on prompting alone.</p>
     <p>The first RAG prototype used LangChain and hit a version conflict with ChromaDB that
     made integration with the OpenWebUI front-end impossible. Rather than work around it, I
     wrote the retrieval tool from scratch: PyPDF2 for text extraction,
@@ -350,25 +352,57 @@
     boundaries, <code>all-MiniLM-L6-v2</code> for embeddings, and a persistent ChromaDB
     index. Slower to build, but it removed the dependency conflict and gave full control
     over indexing and retrieval.</p>
-    <p>Connecting it to the ticketing system was the hard part. GLPI holds the city's
-    tickets, but its REST API is limited and the schema is large and poorly documented. I
-    connected directly to the SQL database through Adminer, reverse-engineered it, and
-    produced an entity-relationship diagram over the tables that mattered —
-    <code>glpi_tickets</code>, <code>glpi_users</code>, <code>glpi_itilcategories</code> —
-    then used that as the reference for building reliable queries.</p>
+  </div>
+
+  <div class="block">
+    <h3>Connecting the ticketing system</h3>
+    <p>The hard part. GLPI holds the city's tickets, but its REST API is limited and the
+    schema is large and poorly documented. I connected directly to the SQL database through
+    Adminer, reverse-engineered it, and produced an entity-relationship diagram over the
+    tables that mattered — <code>glpi_tickets</code>, <code>glpi_users</code>,
+    <code>glpi_itilcategories</code> — then used that as the reference for building reliable
+    queries.</p>
     <p>The client was written defensively: every API interaction opens a temporary session
     whose token is destroyed immediately afterwards, pagination is driven by reading the
     HTTP <code>Content-Range</code> header rather than guessing page counts, and ticket
     descriptions are stripped of HTML before reaching the model.</p>
   </div>
 
+  <div class="result">
+    <h3>Delivered</h3>
+    <table>
+      <tr><td>Support tickets requiring manual handling</td><td class="n hi">−37%</td></tr>
+      <tr><td>Data leaving municipal infrastructure</td><td class="n hi">none</td></tr>
+    </table>
+  </div>
+
+  <div class="stack">
+    <span>Ollama</span><span>LLM fine-tuning</span><span>OpenWebUI</span><span>ChromaDB</span>
+    <span>SentenceTransformers</span><span>PyPDF2</span><span>GLPI API</span><span>SQL</span><span>Adminer</span>
+  </div>
+  <p class="fnote">Internal municipal systems — source not public.</p>
+</article>
+
+<!-- ─────────────────────────────────────────── -->
+<article id="rag-public">
+  <div class="num">04.2</div>
+  <h2>Public Assistant on epinal.fr</h2>
+  <p class="sub">AI Engineering intern, DGSITN — Ville d'Épinal · summer 2025</p>
+
   <div class="block">
-    <h3>System 2 — Public assistant on epinal.fr</h3>
-    <p>A citizen-facing conversational assistant built on Dialogflow CX, backed by a Google
-    Cloud architecture designed so its knowledge base maintains itself. Cloud Scheduler
-    triggers a Dockerised scraper on Cloud Run; new municipal publications land in a Cloud
-    Storage bucket; that write event triggers a second Cloud Run instance which re-indexes
-    the document.</p>
+    <h3>A different problem to the internal one</h3>
+    <p>This assistant answers citizens on the city's public website. It serves public
+    information only, so it carries none of the sovereignty constraints that shaped
+    <a href="#rag-internal">the internal system</a> — which freed it to use managed cloud
+    services and be built for scale, availability and a conversational interface instead.</p>
+  </div>
+
+  <div class="block">
+    <h3>What I built</h3>
+    <p>A conversational assistant on Dialogflow CX, backed by a Google Cloud architecture
+    designed so its knowledge base maintains itself. Cloud Scheduler triggers a Dockerised
+    scraper on Cloud Run; new municipal publications land in a Cloud Storage bucket; that
+    write event triggers a second Cloud Run instance which re-indexes the document.</p>
     <p>The pipeline is event-driven rather than batch, so the assistant reflects new
     publications without anyone remembering to refresh it — the difference between a system
     that stays useful and one that quietly goes stale.</p>
@@ -377,10 +411,8 @@
   <div class="result">
     <h3>Delivered</h3>
     <table>
-      <tr><td>Support tickets requiring manual handling</td><td class="n hi">−37%</td></tr>
-      <tr><td>Public assistant live on epinal.fr</td><td class="n hi">deployed</td></tr>
-      <tr><td>Internal system</td><td class="n hi">no data leaves municipal infrastructure</td></tr>
-      <tr><td>Knowledge base refresh</td><td class="n">autonomous</td></tr>
+      <tr><td>Live on epinal.fr</td><td class="n hi">deployed</td></tr>
+      <tr><td>Knowledge base refresh</td><td class="n hi">autonomous</td></tr>
     </table>
   </div>
 
@@ -390,14 +422,12 @@
   </div>
 
   <div class="stack">
-    <span>Ollama</span><span>LLM fine-tuning</span><span>OpenWebUI</span><span>ChromaDB</span>
-    <span>SentenceTransformers</span><span>GLPI API</span><span>SQL</span>
-    <span>Dialogflow CX</span><span>Docker</span><span>Cloud Run</span><span>Cloud Scheduler</span>
+    <span>Dialogflow CX</span><span>Google Cloud Run</span><span>Cloud Scheduler</span>
+    <span>Cloud Storage</span><span>Docker</span><span>Python</span>
   </div>
   <div class="links">
     <a href="https://www.epinal.fr">Live assistant on epinal.fr →</a>
   </div>
-  <p class="fnote" style="margin-top:14px">Internal municipal systems — source not public.</p>
 </article>
 
 

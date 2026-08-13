@@ -13,9 +13,11 @@ reproducible from committed code in the linked repository.
   (2017), including the claim that doesn't hold
 - **Multimodal Match Prediction & Market Benchmarking** — parity with the bookmaker closing
   line, validated by closing-line value against a random control
-- **Two AI Assistants for a City Administration** — internship at DGSITN, Ville d'Épinal:
-  an on-premises assistant over support tickets and internal documents, and a public
-  Dialogflow CX assistant on epinal.fr with a self-updating Google Cloud pipeline
+- **Internal Assistant for Support Tickets** — DGSITN, Ville d'Épinal: fully on-premises
+  RAG over internal documents with a GLPI integration, built under a digital-sovereignty
+  constraint
+- **Public Assistant on epinal.fr** — the citizen-facing counterpart on Dialogflow CX,
+  with an event-driven Google Cloud pipeline that keeps its knowledge base current
 
 Separate from [ahmedchaoui.com](https://ahmedchaoui.com), which covers background and
 education.
