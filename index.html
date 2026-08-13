@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ahmed Chaoui — Projects</title>
+<title>Ahmed Chaoui, Projects</title>
 <meta name="description" content="Technical write-ups of machine learning and systems projects: LLM inference efficiency, predictive uncertainty, multimodal modelling and market benchmarking.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
 <style>
@@ -104,7 +104,7 @@
   <div class="eyebrow">Ahmed Chaoui Kouraichi</div>
   <h1>Projects</h1>
   <p class="lede">
-    Write-ups of what I built, why, and what the results actually showed — including
+    Write-ups of what I built, why, and what the results actually showed, including
     the ones that didn't work. Each links to a repository where every number is
     reproducible from committed code.
   </p>
@@ -131,7 +131,7 @@
 <article id="kv">
   <div class="num">01</div>
   <h2>KV-Cache Compression for LLM Inference</h2>
-  <p class="sub">Which cache-compression method should an LLM-native data system use — and does the answer depend on the workload?</p>
+  <p class="sub">Which cache-compression method should an LLM-native data system use, and does the answer depend on the workload?</p>
 
   <div class="block">
     <h3>The problem</h3>
@@ -140,7 +140,7 @@
     operator re-sends the full document through the model, recomputing an identical
     context every time. Long documents and images make that expensive.</p>
     <p>A compressed KV cache can be built once per document and reused across every
-    later query — but only if compression preserves what those queries need.</p>
+    later query, but only if compression preserves what those queries need.</p>
   </div>
 
   <div class="block">
@@ -149,13 +149,13 @@
     <code>kvpress</code>: <strong>Expected Attention</strong> and <strong>KVzip</strong>
     (query-agnostic, so the cache is reusable) against <strong>Finch</strong>
     (query-dependent, so it specialises per request but cannot be reused).</p>
-    <p>Three datasets — 1,000 Rotten Tomatoes reviews, 1,000 Enron emails, and 63
-    paintings for the vision-language case — each with 10 filter and 10 extraction
+    <p>Three datasets, 1,000 Rotten Tomatoes reviews, 1,000 Enron emails, and 63
+    paintings for the vision-language case, each with 10 filter and 10 extraction
     queries, across four models and compression ratios up to 80% of the cache evicted.</p>
   </div>
 
   <div class="result">
-    <h3>Result — no universal winner</h3>
+    <h3>Result, no universal winner</h3>
     <table>
       <tr><th>Dataset / model</th><th>Best method</th><th>Type</th><th>Macro F1</th></tr>
       <tr><td>Movie / Llama-3.2-1B</td><td>KVzip</td><td>query-agnostic</td><td class="n">0.279</td></tr>
@@ -171,7 +171,7 @@
     patch tokens appear to carry far more query-specific redundancy, which a method that
     sees the query can exploit and a reusable one cannot.</p>
     <p>Two further findings: filter-style predicates survive 80% cache eviction with no
-    measurable loss while extraction degrades steadily — so a real system should pick the
+    measurable loss while extraction degrades steadily, so a real system should pick the
     ratio per operator, not globally. And Expected Attention runs
     <strong class="hi">1.37× faster</strong> than KVzip (2.94 s vs 4.03 s mean, n=80 paired
     runs), because it scores in a single prefill pass where KVzip needs extra
@@ -180,7 +180,7 @@
 
   <div class="note">
     <strong>A caveat I'd flag in review:</strong> filter and extraction metrics are disjoint
-    here — F1 exists only for filter queries, accuracy only for extraction — so there is no
+    here, F1 exists only for filter queries, accuracy only for extraction, so there is no
     single "system accuracy" number, and I don't quote one. Precision is also exactly 1.0
     across all filter rows, meaning that F1 tracks recall alone.
   </div>
@@ -200,7 +200,7 @@
 <article id="uncertainty">
   <div class="num">02</div>
   <h2>Predictive Uncertainty via Deep Ensembles</h2>
-  <p class="sub">Can an ensemble of plain networks — no Bayesian machinery — tell you when it doesn't know?</p>
+  <p class="sub">Can an ensemble of plain networks, no Bayesian machinery, tell you when it doesn't know?</p>
 
   <div class="block">
     <h3>The problem</h3>
@@ -219,7 +219,7 @@
   </div>
 
   <div class="result">
-    <h3>Result — two of three reproduce</h3>
+    <h3>Result, two of three reproduce</h3>
     <table>
       <tr><th>Claim</th><th>Outcome</th></tr>
       <tr><td>Calibrated regression uncertainty</td><td class="hi">reproduces</td></tr>
@@ -230,7 +230,7 @@
 
   <div class="block">
     <p>Under FGSM attack at ε = 0.3, accuracy restricted to high-confidence predictions is
-    essentially <strong>flat</strong> — 7.4% at any threshold for the plain ensemble — and
+    essentially <strong>flat</strong>, 7.4% at any threshold for the plain ensemble, and
     for the adversarially-trained one it <em>declines</em> past τ = 0.5, from 36.6% down to
     26.2%. Filtering on confidence buys you nothing on adversarial inputs; the most
     confident predictions are among the least reliable.</p>
@@ -260,14 +260,14 @@
 <article id="sports">
   <div class="num">03</div>
   <h2>Multimodal Match Prediction & Market Benchmarking</h2>
-  <p class="sub">How close can a model built from public data get to a bookmaker's closing line — and is close enough to profit?</p>
+  <p class="sub">How close can a model built from public data get to a bookmaker's closing line, and is close enough to profit?</p>
 
   <div class="block">
     <h3>What I built</h3>
     <p>A late-fusion architecture: an LSTM over rolling match statistics (form, goals,
     shots on target, Elo, rest days) fused with 768-dimensional XLM-RoBERTa embeddings of
     pre-match news. Splits are strictly chronological and every feature is computed only
-    from matches already played — look-ahead bugs are silent and flatter results, so the
+    from matches already played, look-ahead bugs are silent and flatter results, so the
     repository asserts their absence in tests.</p>
     <p>Scaled to <strong>37,514 matches across 14 European leagues</strong>, with the
     de-vigged opening price supplied as an input feature. That last choice makes the
@@ -276,7 +276,7 @@
   </div>
 
   <div class="result">
-    <h3>Result — parity with the market, not an edge</h3>
+    <h3>Result, parity with the market, not an edge</h3>
     <table>
       <tr><th>Predictor</th><th>Log-loss</th><th>Note</th></tr>
       <tr><td>Uniform prior</td><td class="n">1.0986</td><td>floor</td></tr>
@@ -286,22 +286,22 @@
   </div>
 
   <div class="block">
-    <p>The gap to the closing line narrowed from 0.0296 to <strong>0.0010</strong> — parity —
+    <p>The gap to the closing line narrowed from 0.0296 to <strong>0.0010</strong>, parity,
     but never turned negative. Given the price plus 22 features and 26,674 training matches,
     the model converges to reproducing the market. The conclusion is that this feature set
     carries no information the price has not already absorbed.</p>
     <p>I validated that with a <strong>closing-line-value test</strong> against Pinnacle's
     close, the standard edge check. Model-selected bets returned −3.52% CLV versus −3.46%
     for a random-selection control: statistically indistinguishable from picking at random.
-    The control is the load-bearing part — without it the raw number looks like signal.</p>
+    The control is the load-bearing part, without it the raw number looks like signal.</p>
   </div>
 
   <div class="note">
     <strong>Why value betting loses, mechanically:</strong> edge is <code>p·odds − 1</code>, so a
     fixed absolute error in <code>p</code> scales with the odds. A three-point overestimate
     implies a +20% edge at odds 15 but +2% at odds 1.5. Selecting on maximum edge therefore
-    selects wherever your estimates are most inflated — claimed +28.6% EV at odds 10+
-    returned −32.1% actual — and Kelly sizes exactly those bets largest.
+    selects wherever your estimates are most inflated, claimed +28.6% EV at odds 10+
+    returned −32.1% actual, and Kelly sizes exactly those bets largest.
   </div>
 
   <div class="stack">
@@ -318,13 +318,13 @@
 <article id="rag-internal">
   <div class="num">04.1</div>
   <h2>Internal Assistant for Support Tickets</h2>
-  <p class="sub">AI Engineering intern, DGSITN — Ville d'Épinal · summer 2025</p>
+  <p class="sub">AI Engineering intern, DGSITN, Ville d'Épinal · summer 2025</p>
 
   <div class="block">
     <h3>Why this one had to be built on-premises</h3>
     <p>The internship produced two assistants: this one for municipal staff handling
     support tickets, and <a href="#rag-public">a public one for citizens</a>. They look like
-    the same product, but the data behind them is not comparable — and that difference
+    the same product, but the data behind them is not comparable, and that difference
     decided the architecture of each.</p>
     <p>Support tickets and internal documents cannot leave the city's own infrastructure.
     Digital sovereignty here is a requirement, not a preference, and it rules out every
@@ -333,7 +333,7 @@
 
   <div class="result">
     <table>
-      <tr><th></th><th>04.1 — Internal</th><th>04.2 — Public</th></tr>
+      <tr><th></th><th>04.1, Internal</th><th>04.2, Public</th></tr>
       <tr><td>Users</td><td>Municipal staff</td><td>Citizens on epinal.fr</td></tr>
       <tr><td>Data</td><td>Support tickets, internal documents</td><td>Public municipal information</td></tr>
       <tr><td>Constraint</td><td class="hi">Must stay on-premises</td><td>Scale and availability</td></tr>
@@ -359,8 +359,8 @@
     <p>The hard part. GLPI holds the city's tickets, but its REST API is limited and the
     schema is large and poorly documented. I connected directly to the SQL database through
     Adminer, reverse-engineered it, and produced an entity-relationship diagram over the
-    tables that mattered — <code>glpi_tickets</code>, <code>glpi_users</code>,
-    <code>glpi_itilcategories</code> — then used that as the reference for building reliable
+    tables that mattered, <code>glpi_tickets</code>, <code>glpi_users</code>,
+    <code>glpi_itilcategories</code>, then used that as the reference for building reliable
     queries.</p>
     <p>The client was written defensively: every API interaction opens a temporary session
     whose token is destroyed immediately afterwards, pagination is driven by reading the
@@ -380,20 +380,20 @@
     <span>Ollama</span><span>LLM fine-tuning</span><span>OpenWebUI</span><span>ChromaDB</span>
     <span>SentenceTransformers</span><span>PyPDF2</span><span>GLPI API</span><span>SQL</span><span>Adminer</span>
   </div>
-  <p class="fnote">Internal municipal systems — source not public.</p>
+  <p class="fnote">Internal municipal systems, source not public.</p>
 </article>
 
 <!-- ─────────────────────────────────────────── -->
 <article id="rag-public">
   <div class="num">04.2</div>
   <h2>Public Assistant on epinal.fr</h2>
-  <p class="sub">AI Engineering intern, DGSITN — Ville d'Épinal · summer 2025</p>
+  <p class="sub">AI Engineering intern, DGSITN, Ville d'Épinal · summer 2025</p>
 
   <div class="block">
     <h3>A different problem to the internal one</h3>
     <p>This assistant answers citizens on the city's public website. It serves public
     information only, so it carries none of the sovereignty constraints that shaped
-    <a href="#rag-internal">the internal system</a> — which freed it to use managed cloud
+    <a href="#rag-internal">the internal system</a>, which freed it to use managed cloud
     services and be built for scale, availability and a conversational interface instead.</p>
   </div>
 
@@ -404,7 +404,7 @@
     scraper on Cloud Run; new municipal publications land in a Cloud Storage bucket; that
     write event triggers a second Cloud Run instance which re-indexes the document.</p>
     <p>The pipeline is event-driven rather than batch, so the assistant reflects new
-    publications without anyone remembering to refresh it — the difference between a system
+    publications without anyone remembering to refresh it, the difference between a system
     that stays useful and one that quietly goes stale.</p>
   </div>
 
@@ -418,7 +418,7 @@
 
   <div class="note">
     A parallel case study analysed Santé publique France's open Nutri-Score dataset in
-    pandas — cleaning, aggregation and visualisation — alongside the main mission.
+    pandas, cleaning, aggregation and visualisation, alongside the main mission.
   </div>
 
   <div class="stack">
