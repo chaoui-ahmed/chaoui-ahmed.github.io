@@ -119,7 +119,7 @@
     <li><a href="#kv"><span class="t">KV-Cache Compression for LLM Inference</span><span class="d">systems · benchmarking</span></a></li>
     <li><a href="#uncertainty"><span class="t">Predictive Uncertainty via Deep Ensembles</span><span class="d">calibration · reproduction</span></a></li>
     <li><a href="#sports"><span class="t">Multimodal Match Prediction & Market Benchmarking</span><span class="d">modelling · evaluation</span></a></li>
-    <li><a href="#rag"><span class="t">Municipal LLM & RAG Assistant</span><span class="d">applied · internship</span></a></li>
+    <li><a href="#rag"><span class="t">Sovereign Local AI for a City Administration</span><span class="d">applied · internship</span></a></li>
   </ol>
 </nav>
 
@@ -313,31 +313,84 @@
 <!-- ─────────────────────────────────────────── -->
 <article id="rag">
   <div class="num">04</div>
-  <h2>Municipal LLM & RAG Assistant</h2>
-  <p class="sub">AI Engineering intern, DGSITG — City of Épinal · June–August 2025</p>
+  <h2>Sovereign Local AI for a City Administration</h2>
+  <p class="sub">AI Engineering intern, DGSITN — Ville d'Épinal · summer 2025</p>
 
   <div class="block">
-    <h3>The problem</h3>
-    <p>A city administration answers the same questions repeatedly — opening hours,
-    document requirements, procedure steps — with staff time going to queries already
-    answered somewhere in municipal documentation.</p>
+    <h3>The constraint that shaped everything</h3>
+    <p>A French city administration cannot send municipal data to a foreign cloud LLM.
+    Digital sovereignty was not a preference here but the requirement the whole
+    architecture had to satisfy — which ruled out every hosted API and forced an
+    entirely local, open-source stack.</p>
   </div>
 
   <div class="block">
-    <h3>What I built</h3>
-    <p>An internal assistant over municipal data: an open-weight LLM fine-tuned on the
-    city's own corpus, with a retrieval-augmented generation layer connected to city
-    databases so answers cite live records rather than memorised training data. Also
-    deployed a public Dialogflow CX assistant on epinal.fr.</p>
-    <p>Result: a <strong class="hi">37% reduction</strong> in support tickets requiring
-    manual handling.</p>
+    <h3>Phase 1 — RAG over municipal documents</h3>
+    <p>Give the assistant the ability to answer from the city's own publications. The
+    first prototype used LangChain, and hit a version conflict with ChromaDB that made
+    integration with the OpenWebUI front-end impossible.</p>
+    <p>Rather than work around it, I wrote the retrieval tool from scratch: PyPDF2 to
+    extract text from municipal magazines, <code>RecursiveCharacterTextSplitter</code> for
+    semantic chunking that preserves context across boundaries, <code>all-MiniLM-L6-v2</code>
+    for embeddings, and a persistent ChromaDB index. Slower to build, but it removed the
+    dependency conflict and gave full control over indexing and retrieval.</p>
+  </div>
+
+  <div class="block">
+    <h3>Phase 2 — Connecting the IT service desk</h3>
+    <p>The harder half. GLPI holds the city's ticketing data, but its REST API is limited
+    and the underlying schema is large and poorly documented. I connected directly to the
+    SQL database through Adminer and reverse-engineered it, producing an entity-relationship
+    diagram over the tables that mattered — <code>glpi_tickets</code>, <code>glpi_users</code>,
+    <code>glpi_itilcategories</code> — and used that as the reference for building reliable
+    queries.</p>
+    <p>The client tool was built defensively: every API interaction opens a temporary
+    session whose token is destroyed immediately afterwards, pagination is driven by reading
+    the HTTP <code>Content-Range</code> header rather than guessing page counts, and ticket
+    descriptions are stripped of HTML before reaching the model.</p>
+  </div>
+
+  <div class="block">
+    <h3>Phase 3 — Making it maintain itself</h3>
+    <p>A knowledge base that goes stale is worse than none. I built an event-driven pipeline
+    on Google Cloud: Cloud Scheduler triggers a Dockerised scraper on Cloud Run, new
+    magazine PDFs land in a Cloud Storage bucket, and that write event triggers a second
+    Cloud Run instance which re-indexes the document into ChromaDB.</p>
+    <p>The result closes the loop — an assistant grounded in both structured data (GLPI) and
+    unstructured documents, whose knowledge base updates itself with no manual step.</p>
+  </div>
+
+  <div class="block">
+    <h3>Model adaptation and the public-facing assistant</h3>
+    <p>Beyond retrieval, the open-weight model was fine-tuned on municipal data so it
+    answered in the register and vocabulary the city actually uses, rather than relying on
+    prompting alone. The citizen-facing assistant on epinal.fr was built on Dialogflow CX,
+    with the local stack behind it handling grounded answers.</p>
+  </div>
+
+  <div class="result">
+    <h3>Delivered</h3>
+    <table>
+      <tr><td>Support tickets requiring manual handling</td><td class="n hi">−37%</td></tr>
+      <tr><td>Public assistant live on epinal.fr</td><td class="n hi">deployed</td></tr>
+      <tr><td>Runs on municipal infrastructure</td><td class="n hi">no external API</td></tr>
+      <tr><td>Knowledge base refresh</td><td class="n">autonomous</td></tr>
+    </table>
+  </div>
+
+  <div class="note">
+    A parallel case study analysed Santé publique France's open Nutri-Score dataset in
+    pandas — cleaning, aggregation and visualisation — as a smaller exercise alongside the
+    main mission.
   </div>
 
   <div class="stack">
-    <span>LLM fine-tuning</span><span>RAG</span><span>Dialogflow CX</span><span>Python</span>
+    <span>Ollama</span><span>LLM fine-tuning</span><span>OpenWebUI</span><span>ChromaDB</span><span>SentenceTransformers</span><span>Dialogflow CX</span>
+    <span>Python</span><span>GLPI API</span><span>SQL</span><span>Docker</span>
+    <span>Cloud Run</span><span>Cloud Scheduler</span>
   </div>
   <div class="links">
-    <a href="https://www.epinal.fr">City of Épinal →</a>
+    <a href="https://www.epinal.fr">Live assistant on epinal.fr →</a>
   </div>
   <p class="fnote" style="margin-top:14px">Internal municipal systems — source not public.</p>
 </article>

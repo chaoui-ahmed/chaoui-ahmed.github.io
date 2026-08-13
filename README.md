@@ -13,7 +13,8 @@ reproducible from committed code in the linked repository.
   (2017), including the claim that doesn't hold
 - **Multimodal Match Prediction & Market Benchmarking** — parity with the bookmaker closing
   line, validated by closing-line value against a random control
-- **Municipal LLM & RAG Assistant** — internship work at DGSITG, City of Épinal
+- **Sovereign Local AI for a City Administration** — internship at DGSITN, Ville d'Épinal:
+  fully local RAG stack, GLPI integration, and a self-updating serverless pipeline
 
 Separate from [ahmedchaoui.com](https://ahmedchaoui.com), which covers background and
 education.
