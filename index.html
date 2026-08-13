@@ -119,7 +119,7 @@
     <li><a href="#kv"><span class="t">KV-Cache Compression for LLM Inference</span><span class="d">systems · benchmarking</span></a></li>
     <li><a href="#uncertainty"><span class="t">Predictive Uncertainty via Deep Ensembles</span><span class="d">calibration · reproduction</span></a></li>
     <li><a href="#sports"><span class="t">Multimodal Match Prediction & Market Benchmarking</span><span class="d">modelling · evaluation</span></a></li>
-    <li><a href="#rag"><span class="t">Sovereign Local AI for a City Administration</span><span class="d">applied · internship</span></a></li>
+    <li><a href="#rag"><span class="t">Two AI Assistants for a City Administration</span><span class="d">applied · internship</span></a></li>
   </ol>
 </nav>
 
@@ -313,59 +313,65 @@
 <!-- ─────────────────────────────────────────── -->
 <article id="rag">
   <div class="num">04</div>
-  <h2>Sovereign Local AI for a City Administration</h2>
+  <h2>Two AI Assistants for a City Administration</h2>
   <p class="sub">AI Engineering intern, DGSITN — Ville d'Épinal · summer 2025</p>
 
   <div class="block">
-    <h3>The constraint that shaped everything</h3>
-    <p>A French city administration cannot send municipal data to a foreign cloud LLM.
-    Digital sovereignty was not a preference here but the requirement the whole
-    architecture had to satisfy — which ruled out every hosted API and forced an
-    entirely local, open-source stack.</p>
+    <h3>Why two systems, not one</h3>
+    <p>The city needed an assistant for staff handling support tickets, and one for
+    citizens on the public website. They look like the same product, but the data behind
+    them is not comparable — and that difference decided the architecture.</p>
+    <p>Internal ticket data and municipal documents cannot leave the city's own
+    infrastructure: digital sovereignty here is a requirement, not a preference, and it
+    rules out every hosted API. Public information on the website carries no such
+    constraint, so it could use managed cloud services and be built for scale and uptime
+    instead. So I built two.</p>
+  </div>
+
+  <div class="result">
+    <table>
+      <tr><th></th><th>Internal assistant</th><th>Public assistant</th></tr>
+      <tr><td>Users</td><td>Municipal staff</td><td>Citizens on epinal.fr</td></tr>
+      <tr><td>Data</td><td>Support tickets, internal documents</td><td>Public municipal information</td></tr>
+      <tr><td>Constraint</td><td class="hi">Must stay on-premises</td><td>Scale and availability</td></tr>
+      <tr><td>Stack</td><td>Ollama · OpenWebUI · ChromaDB</td><td>Dialogflow CX · Google Cloud</td></tr>
+    </table>
   </div>
 
   <div class="block">
-    <h3>Phase 1 — RAG over municipal documents</h3>
-    <p>Give the assistant the ability to answer from the city's own publications. The
-    first prototype used LangChain, and hit a version conflict with ChromaDB that made
-    integration with the OpenWebUI front-end impossible.</p>
-    <p>Rather than work around it, I wrote the retrieval tool from scratch: PyPDF2 to
-    extract text from municipal magazines, <code>RecursiveCharacterTextSplitter</code> for
-    semantic chunking that preserves context across boundaries, <code>all-MiniLM-L6-v2</code>
-    for embeddings, and a persistent ChromaDB index. Slower to build, but it removed the
-    dependency conflict and gave full control over indexing and retrieval.</p>
-  </div>
-
-  <div class="block">
-    <h3>Phase 2 — Connecting the IT service desk</h3>
-    <p>The harder half. GLPI holds the city's ticketing data, but its REST API is limited
-    and the underlying schema is large and poorly documented. I connected directly to the
-    SQL database through Adminer and reverse-engineered it, producing an entity-relationship
-    diagram over the tables that mattered — <code>glpi_tickets</code>, <code>glpi_users</code>,
-    <code>glpi_itilcategories</code> — and used that as the reference for building reliable
-    queries.</p>
-    <p>The client tool was built defensively: every API interaction opens a temporary
-    session whose token is destroyed immediately afterwards, pagination is driven by reading
-    the HTTP <code>Content-Range</code> header rather than guessing page counts, and ticket
+    <h3>System 1 — Internal assistant, fully local</h3>
+    <p>An open-weight model served through Ollama and fine-tuned on municipal data, so it
+    answered in the register the city actually uses rather than relying on prompting alone.
+    Retrieval runs over the internal document base.</p>
+    <p>The first RAG prototype used LangChain and hit a version conflict with ChromaDB that
+    made integration with the OpenWebUI front-end impossible. Rather than work around it, I
+    wrote the retrieval tool from scratch: PyPDF2 for text extraction,
+    <code>RecursiveCharacterTextSplitter</code> for chunking that preserves context across
+    boundaries, <code>all-MiniLM-L6-v2</code> for embeddings, and a persistent ChromaDB
+    index. Slower to build, but it removed the dependency conflict and gave full control
+    over indexing and retrieval.</p>
+    <p>Connecting it to the ticketing system was the hard part. GLPI holds the city's
+    tickets, but its REST API is limited and the schema is large and poorly documented. I
+    connected directly to the SQL database through Adminer, reverse-engineered it, and
+    produced an entity-relationship diagram over the tables that mattered —
+    <code>glpi_tickets</code>, <code>glpi_users</code>, <code>glpi_itilcategories</code> —
+    then used that as the reference for building reliable queries.</p>
+    <p>The client was written defensively: every API interaction opens a temporary session
+    whose token is destroyed immediately afterwards, pagination is driven by reading the
+    HTTP <code>Content-Range</code> header rather than guessing page counts, and ticket
     descriptions are stripped of HTML before reaching the model.</p>
   </div>
 
   <div class="block">
-    <h3>Phase 3 — Making it maintain itself</h3>
-    <p>A knowledge base that goes stale is worse than none. I built an event-driven pipeline
-    on Google Cloud: Cloud Scheduler triggers a Dockerised scraper on Cloud Run, new
-    magazine PDFs land in a Cloud Storage bucket, and that write event triggers a second
-    Cloud Run instance which re-indexes the document into ChromaDB.</p>
-    <p>The result closes the loop — an assistant grounded in both structured data (GLPI) and
-    unstructured documents, whose knowledge base updates itself with no manual step.</p>
-  </div>
-
-  <div class="block">
-    <h3>Model adaptation and the public-facing assistant</h3>
-    <p>Beyond retrieval, the open-weight model was fine-tuned on municipal data so it
-    answered in the register and vocabulary the city actually uses, rather than relying on
-    prompting alone. The citizen-facing assistant on epinal.fr was built on Dialogflow CX,
-    with the local stack behind it handling grounded answers.</p>
+    <h3>System 2 — Public assistant on epinal.fr</h3>
+    <p>A citizen-facing conversational assistant built on Dialogflow CX, backed by a Google
+    Cloud architecture designed so its knowledge base maintains itself. Cloud Scheduler
+    triggers a Dockerised scraper on Cloud Run; new municipal publications land in a Cloud
+    Storage bucket; that write event triggers a second Cloud Run instance which re-indexes
+    the document.</p>
+    <p>The pipeline is event-driven rather than batch, so the assistant reflects new
+    publications without anyone remembering to refresh it — the difference between a system
+    that stays useful and one that quietly goes stale.</p>
   </div>
 
   <div class="result">
@@ -373,21 +379,20 @@
     <table>
       <tr><td>Support tickets requiring manual handling</td><td class="n hi">−37%</td></tr>
       <tr><td>Public assistant live on epinal.fr</td><td class="n hi">deployed</td></tr>
-      <tr><td>Runs on municipal infrastructure</td><td class="n hi">no external API</td></tr>
+      <tr><td>Internal system</td><td class="n hi">no data leaves municipal infrastructure</td></tr>
       <tr><td>Knowledge base refresh</td><td class="n">autonomous</td></tr>
     </table>
   </div>
 
   <div class="note">
     A parallel case study analysed Santé publique France's open Nutri-Score dataset in
-    pandas — cleaning, aggregation and visualisation — as a smaller exercise alongside the
-    main mission.
+    pandas — cleaning, aggregation and visualisation — alongside the main mission.
   </div>
 
   <div class="stack">
-    <span>Ollama</span><span>LLM fine-tuning</span><span>OpenWebUI</span><span>ChromaDB</span><span>SentenceTransformers</span><span>Dialogflow CX</span>
-    <span>Python</span><span>GLPI API</span><span>SQL</span><span>Docker</span>
-    <span>Cloud Run</span><span>Cloud Scheduler</span>
+    <span>Ollama</span><span>LLM fine-tuning</span><span>OpenWebUI</span><span>ChromaDB</span>
+    <span>SentenceTransformers</span><span>GLPI API</span><span>SQL</span>
+    <span>Dialogflow CX</span><span>Docker</span><span>Cloud Run</span><span>Cloud Scheduler</span>
   </div>
   <div class="links">
     <a href="https://www.epinal.fr">Live assistant on epinal.fr →</a>
